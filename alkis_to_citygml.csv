@@ -1,0 +1,501 @@
+31001_1000	Wohngebäude	1000
+31001_1010	Wohnhaus	1010
+31001_1020	Wohnheim	1020
+31001_1021	Kinderheim	2350
+31001_1022	Seniorenheim	2360
+31001_1023	Schwesternwohnheim	1020
+31001_1024	Studenten-, Schülerwohnheim	1020
+31001_1025	Schullandheim	1220
+31001_1100	Gemischt genutztes Gebäude mit Wohnen	1000
+31001_1110	Wohngebäude mit Gemeinbedarf	2340
+31001_1120	Wohngebäude mit Handel und Dienstleistungen	1030
+31001_1121	Wohn- und Verwaltungsgebäude	1030
+31001_1122	Wohn- und Bürogebäude	1040
+31001_1123	Wohn- und Geschäftsgebäude	1050
+31001_1130	Wohngebäude mit Gewerbe und Industrie	1080
+31001_1131	Wohn- und Betriebsgebäude	1080
+31001_1210	Land- und forstwirtschaftliches Wohngebäude	1070
+31001_1220	Land- und forstwirtschaftliches Wohn- und Betriebsgebäude	1070
+31001_1221	Bauernhaus	1070
+31001_1222	Wohn- und Wirtschaftsgebäude	1080
+31001_1223	Forsthaus	1090
+31001_1310	Gebäude zur Freizeitgestaltung	2540
+31001_1311	Ferienhaus	1100
+31001_1312	Wochenendhaus	1100
+31001_1313	Gartenhaus	1200
+31001_2000	Gebäude für Wirtschaft oder Gewerbe	1150
+31001_2010	Gebäude für Handel und Dienstleistungen	1150
+31001_2020	Bürogebäude	1120
+31001_2030	Kreditinstitut	1130
+31001_2040	Versicherung	1140
+31001_2050	Geschäftsgebäude	1150
+31001_2051	Kaufhaus	1160
+31001_2052	Einkaufszentrum	1170
+31001_2053	Markthalle	1270
+31001_2054	Laden	1150
+31001_2055	Kiosk	1180
+31001_2056	Apotheke	1190
+31001_2060	Messehalle	1270
+31001_2070	Gebäude für Beherbergung	1210
+31001_2071	Hotel, Motel, Pension	1210
+31001_2072	Jugendherberge	1220
+31001_2073	Hütte (mit Übernachtungsmöglichkeit)	2640
+31001_2074	Campingplatzgebäude	1230
+31001_2080	Gebäude für Bewirtung	1240
+31001_2081	Gaststätte, Restaurant	1240
+31001_2082	Hütte (ohne Übernachtungsmöglichkeit)	2640
+31001_2083	Kantine	1250
+31001_2090	Freizeit- und Vergnügungsstätte	1260
+31001_2091	Festsaal	1270
+31001_2092	Kino	1280
+31001_2093	Kegel-, Bowlinghalle	1290
+31001_2094	Spielkasino	1300
+31001_2100	Gebäude für Gewerbe und Industrie	1310
+31001_2110	Produktionsgebäude	1310
+31001_2111	Fabrik	1320
+31001_2112	Betriebsgebäude	1310
+31001_2113	Brauerei	1150
+31001_2114	Brennerei	1150
+31001_2120	Werkstatt	1330
+31001_2121	Sägewerk	1330
+31001_2130	Tankstelle	1340
+31001_2131	Waschstraße, Waschanlage, Waschhalle	1350
+31001_2140	Gebäude für Vorratshaltung	1360
+31001_2141	Kühlhaus	1360
+31001_2142	Speichergebäude	1370
+31001_2143	Lagerhalle, Lagerschuppen, Lagerhaus	1370
+31001_2150	Speditionsgebäude	1550
+31001_2160	Gebäude für Forschungszwecke	1380
+31001_2170	Gebäude für Grundstoffgewinnung	1390
+31001_2171	Bergwerk	1390
+31001_2172	Saline	1400
+31001_2180	Gebäude für betriebliche Sozialeinrichtung	2340
+31001_2200	Sonstiges Gebäude für Gewerbe und Industrie	1410
+31001_2210	Mühle	1420
+31001_2211	Windmühle	1430
+31001_2212	Wassermühle	1440
+31001_2213	Schöpfwerk	1450
+31001_2220	Wetterstation	1460
+31001_2310	Gebäude für Handel und Dienstleistung mit Wohnen	1050
+31001_2320	Gebäude für Gewerbe und Industrie mit Wohnen	1080
+31001_2400	Betriebsgebäude zu Verkehrsanlagen (allgemein)	1470
+31001_2410	Betriebsgebäude für Straßenverkehr	1480
+31001_2411	Straßenmeisterei	1480
+31001_2412	Wartehalle	1490
+31001_2420	Betriebsgebäude für Schienenverkehr	1470
+31001_2421	Bahnwärterhaus	1470
+31001_2422	Lokschuppen, Wagenhalle	1470
+31001_2423	Stellwerk, Blockstelle	1500
+31001_2424	Betriebsgebäude des Güterbahnhofs	1470
+31001_2430	Betriebsgebäude für Flugverkehr	1530
+31001_2431	Flugzeughalle	1540
+31001_2440	Betriebsgebäude für Schiffsverkehr	1550
+31001_2441	Werft (Halle)	1560
+31001_2442	Dock (Halle)	1570
+31001_2443	Betriebsgebäude zur Schleuse	1580
+31001_2444	Bootshaus	1590
+31001_2450	Betriebsgebäude zur Seilbahn	1600
+31001_2451	Spannwerk zur Drahtseilbahn	1600
+31001_2460	Gebäude zum Parken	1610
+31001_2461	Parkhaus	1610
+31001_2462	Parkdeck	1620
+31001_2463	Garage	1630
+31001_2464	Fahrzeughalle	1640
+31001_2465	Tiefgarage	1650
+31001_2500	Gebäude zur Versorgung	1660
+31001_2501	Gebäude zur Energieversorgung	1660
+31001_2510	Gebäude zur Wasserversorgung	1660
+31001_2511	Wasserwerk	1670
+31001_2512	Pumpstation	1680
+31001_2513	Wasserbehälter	1690
+31001_2520	Gebäude zur Elektrizitätsversorgung	1700
+31001_2521	Elektrizitätswerk	1700
+31001_2522	Umspannwerk	1710
+31001_2523	Umformer	1720
+31001_2527	Reaktorgebäude	1730
+31001_2528	Turbinenhaus	1740
+31001_2529	Kesselhaus	1750
+31001_2540	Gebäude für Fernmeldewesen	1760
+31001_2560	Gebäude an unterirdischen Leitungen	2700
+31001_2570	Gebäude zur Gasversorgung	1770
+31001_2571	Gaswerk	1770
+31001_2580	Heizwerk	1780
+31001_2590	Gebäude zur Versorgungsanlage	1660
+31001_2591	Pumpwerk (nicht für Wasserversorgung)	1790
+31001_2600	Gebäude zur Entsorgung	1800
+31001_2610	Gebäude zur Abwasserbeseitigung	1810
+31001_2611	Gebäude der Kläranlage	1820
+31001_2612	Toilette	1830
+31001_2620	Gebäude zur Abfallbehandlung	1850
+31001_2621	Müllbunker	1840
+31001_2622	Gebäude zur Müllverbrennung	1850
+31001_2623	Gebäude der Abfalldeponie	1860
+31001_2700	Gebäude für Land- und Forstwirtschaft	1870
+31001_2720	Land- und forstwirtschaftliches Betriebsgebäude	1870
+31001_2721	Scheune	1880
+31001_2723	Schuppen	1880
+31001_2724	Stall	1890
+31001_2726	Scheune und Stall	1880
+31001_2727	Stall für Tiergroßhaltung	1890
+31001_2728	Reithalle	1900
+31001_2729	Wirtschaftsgebäude	1870
+31001_2732	Almhütte	1910
+31001_2735	Jagdhaus, Jagdhütte	1920
+31001_2740	Treibhaus, Gewächshaus	1930
+31001_2741	Treibhaus	1940
+31001_2742	Gewächshaus, verschiebbar	1950
+31001_3000	Gebäude für öffentliche Zwecke	1960
+31001_3010	Verwaltungsgebäude	1970
+31001_3011	Parlament	1980
+31001_3012	Rathaus	1990
+31001_3013	Post	2000
+31001_3014	Zollamt	2010
+31001_3015	Gericht	2020
+31001_3016	Botschaft, Konsulat	2030
+31001_3017	Kreisverwaltung	2040
+31001_3018	Bezirksregierung	2050
+31001_3019	Finanzamt	2060
+31001_3020	Gebäude für Bildung und Forschung	2070
+31001_3021	Allgemein bildende Schule	2080
+31001_3022	Berufsbildende Schule	2090
+31001_3023	Hochschulgebäude (Fachhochschule, Universität)	2100
+31001_3024	Forschungsinstitut	2110
+31001_3030	Gebäude für kulturelle Zwecke	2120
+31001_3031	Schloss	2130
+31001_3032	Theater, Oper	2140
+31001_3033	Konzertgebäude	2150
+31001_3034	Museum	2160
+31001_3035	Rundfunk, Fernsehen	2170
+31001_3036	Veranstaltungsgebäude	2180
+31001_3037	Bibliothek, Bücherei	2190
+31001_3038	Burg, Festung	2200
+31001_3040	Gebäude für religiöse Zwecke	2210
+31001_3041	Kirche	2220
+31001_3042	Synagoge	2230
+31001_3043	Kapelle	2240
+31001_3044	Gemeindehaus	2250
+31001_3045	Gotteshaus	2260
+31001_3046	Moschee	2270
+31001_3047	Tempel	2280
+31001_3048	Kloster	2290
+31001_3050	Gebäude für Gesundheitswesen	2300
+31001_3051	Krankenhaus	2310
+31001_3052	Heilanstalt, Pflegeanstalt, Pflegestation	2320
+31001_3053	Ärztehaus, Poliklinik	2330
+31001_3060	Gebäude für soziale Zwecke	2340
+31001_3061	Jugendfreizeitheim	2350
+31001_3062	Freizeit-, Vereinsheim, Dorfgemeinschafts-, Bürgerhaus	2340
+31001_3063	Seniorenfreizeitstätte	2360
+31001_3064	Obdachlosenheim	2370
+31001_3065	Kinderkrippe, Kindergarten, Kindertagesstätte	2380
+31001_3066	Asylbewerberheim	2390
+31001_3070	Gebäude für Sicherheit und Ordnung	2400
+31001_3071	Polizei	2400
+31001_3072	Feuerwehr	2410
+31001_3073	Kaserne	2420
+31001_3074	Schutzbunker	2430
+31001_3075	Justizvollzugsanstalt	2440
+31001_3080	Friedhofsgebäude	2450
+31001_3081	Trauerhalle	2460
+31001_3082	Krematorium	2470
+31001_3090	Empfangsgebäude	1490
+31001_3091	Bahnhofsgebäude	2480
+31001_3092	Flughafengebäude	2490
+31001_3094	Gebäude zum U-Bahnhof	2500
+31001_3095	Gebäude zum S-Bahnhof	2510
+31001_3097	Gebäude zum Busbahnhof	2520
+31001_3098	Empfangsgebäude Schifffahrt	2530
+31001_3100	Gebäude für öffentliche Zwecke mit Wohnen	2340
+31001_3200	Gebäude für Erholungszwecke	2540
+31001_3210	Gebäude für Sportzwecke	2550
+31001_3211	Sport-, Turnhalle	2560
+31001_3212	Gebäude zum Sportplatz	2570
+31001_3220	Badegebäude	2580
+31001_3221	Hallenbad	2590
+31001_3222	Gebäude im Freibad	2580
+31001_3230	Gebäude im Stadion	2570
+31001_3240	Gebäude für Kurbetrieb	2540
+31001_3241	Badegebäude für medizinische Zwecke	2580
+31001_3242	Sanatorium	2600
+31001_3260	Gebäude im Zoo	2610
+31001_3261	Empfangsgebäude des Zoos	2610
+31001_3262	Aquarium, Terrarium, Voliere	2610
+31001_3263	Tierschauhaus	2610
+31001_3264	Stall im Zoo	2610
+31001_3270	Gebäude im botanischen Garten	2630
+31001_3271	Empfangsgebäude des botanischen Gartens	2630
+31001_3272	Gewächshaus (Botanik)	2630
+31001_3273	Pflanzenschauhaus	2620
+31001_3280	Gebäude für andere Erholungseinrichtung	2540
+31001_3281	Schutzhütte	2640
+31001_3290	Touristisches Informationszentrum	2650
+31001_9998	Nach Quellenlage nicht zu spezifizieren	2700
+51001_1001	Wasserturm	1690
+51001_1002	Kirchturm	2220
+51001_1003	Aussichtsturm	2700
+51001_1004	Kontrollturm	2700
+51001_1005	Kühlturm	1360
+51001_1006	Leuchtturm	2700
+51001_1007	Feuerwachturm	2410
+51001_1008	Sende-,Funkturm	2170
+51001_1009	Stadt-,Torturm	2700
+51001_1010	Förderturm	2700
+51001_1011	Bohrturm	2700
+51001_1012	Schloss-, Burgturm	2200
+51001_9998	Nach Quellenlage nicht zu spezifizieren	2700
+51001_9999	Sonstiges	2700
+51002_1215	Biogasanlage	2700
+51002_1220	Windrad	2700
+51002_1230	Solarzellen	2700
+51002_1250	Mast	2700
+51002_1260	Funkmast	1760
+51002_1280	Radioteleskop	2700
+51002_1290	Schornstein	2700
+51002_1330	Kran	2700
+51002_1331	Drehkran	2700
+51002_1332	Portalkran	2700
+51002_1333	Laufkran	2700
+51002_1350	Hochofen	2700
+51002_1400	Umformer	1720
+51002_9999	Sonstiges	2700
+51003_1201	Silo	2700
+51003_1205	Tank	2700
+51003_1206	Gasometer	1770
+51003_9999	Sonstiges	2700
+51006_1430	Zuschauertribüne	2570
+51006_1431	Zuschauertribüne, überdacht	2570
+51006_1432	Zuschauertribüne, nicht überdacht	2570
+51006_1440	Stadion	2570
+51006_1470	Sprungschanze (Anlauf)	2550
+51006_1490	Gradierwerk	1400
+51006_9999	Sonstiges	2700
+51007_1210	Wachturm	2700
+51007_1400	Befestigung (Burgruine)	2200
+51007_1500	Historische Mauer	2700
+51007_1510	Stadtmauer	2700
+51007_1520	Sonstige historische Mauer	2700
+51007_9999	Sonstiges	2700
+51009_1610	Überdachung	2700
+51009_1611	Carport	1630
+51009_1750	Denkmal	2700
+51009_9999	Sonstiges	2700
+11_1001	Gebäude (allgemein)	2700
+11_1002	Reservierte Hausnummer	2700
+11_1003	Wohn- oder öffentliches Gebäude (allgemein)	1030
+11_1004	Wirtschafts- oder Industriegebäude (allgemein)	1150
+11_1005	Unterirdisches Gebäude (soweit nicht OS 2363)	2700
+11_1006	Kleines untergeordnetes Gebäude	2700
+11_1036	vorhandenes, nichteingemessenes Gebäude	2700
+11_1101	Öffentliches Gebäude (allg.)	1960
+11_1111	Parlament	1980
+11_1112	Rathaus	1990
+11_1113	Postamt	2000
+11_1114	Zollamt	2010
+11_1115	Gericht	2020
+11_1116	Botschaft, Konsulat	2030
+11_1118	Öffentliche Verwaltung (allgemein)	1970
+11_1121	Allgemeinbildende Schule	2080
+11_1122	Berufsschule,Fachschule, Volkshochschule	2090
+11_1123	Fachhochschule, Universität	2100
+11_1124	Forschungsinstitut	2110
+11_1128	Bildungs-, Forschungseinrichtung (allgemein)	2070
+11_1131	Schloss, Burg	2130
+11_1132	Theater, Oper	2140
+11_1133	Konzertgebäude	2150
+11_1134	Museum	2160
+11_1135	Rundfunkanstalt, Fernsehanstalt	2170
+11_1136	Veranstaltungsgebäude	2180
+11_1137	Bibliothek, Bücherei	2190
+11_1138	Kulturelle Einrichtung (allgemein)	2120
+11_1141	Christliche Kirche	2220
+11_1142	Synagoge	2230
+11_1143	Kapelle	2240
+11_1144	Gemeindehaus, Küsterei	2250
+11_1145	Gotteshaus einer anderen Religionsgemeinschaft	2260
+11_1148	Kirchliche Einrichtung (allgemein)	2220
+11_1151	Krankenhaus	2310
+11_1152	Heilanstalt, Pflegeanstalt	2320
+11_1158	Gesundheitseinrichtung (allgemein)	2330
+11_1161	Jugendfreizeitheim	2350
+11_1162	Freizeitheim, Dorfgemeinschaftshaus, Bürgerhaus	2340
+11_1163	Seniorenfreizeitstätte	2360
+11_1164	Fremdenheim	2340
+11_1165	Kindergarten, Kindertagesstätte	2380
+11_1168	Sozialeinrichtung (allgemein)	2340
+11_1171	Polizei	2400
+11_1172	Feuerwehr	2410
+11_1173	Kaserne	2420
+11_1174	Schutzbunker	2430
+11_1175	Justizvollzugsanstalt	2440
+11_1178	Sicherheitseinrichtung (allgemein)	2400
+11_1181	Trauerhalle	2460
+11_1182	Krematorium	2470
+11_1188	Friedhofsgebäude (allgemein)	2450
+11_1191	Bahnhofsgebäude	2480
+11_1192	Flughafengebäude	2490
+11_1194	U-Bahnhof	2500
+11_1195	S-Bahnhof	2510
+11_1196	Kontrollturm	2700
+11_1197	Omnibusbahnhof	2520
+11_1198	Empfangsgebäude für Verkehrsteilnehmer (allgemein)	1490
+11_1211	Wohnhaus in Reihe	1010
+11_1221	Freistehender Wohnblock	1010
+11_1231	Wohnblock in geschlossener Bauweise	1010
+11_1301	Wohnhaus (allgemein)	1010
+11_1311	Einzelhaus	1010
+11_1321	Doppelhaus	1010
+11_1331	Reihenhaus	1010
+11_1341	Gruppenhaus	1010
+11_1361	Hochhaus	1010
+11_1371	Kinderheim	2350
+11_1372	Seniorenwohnhaus, Seniorenheim	2360
+11_1373	Arbeitnehmerwohnheim, Schwesternwohnheim	1020
+11_1374	Studentenwohnheim, Schülerwohnheim	1020
+11_1375	Schullandheim	1220
+11_1378	Wohnheim (allgemein)	1220
+11_1381	Behelfsmäßiges Wohngebäude	1220
+11_1399	Wohngebäude (soweit nicht OS 1311 - 1398)	1000
+11_1401	Gebäude für Handel und Dienstleistungen (allgemein)	1150
+11_1411	Verwaltungsgebäude, Bürogebäude	1120
+11_1421	Kreditinstitutsgebäude, Bankgebäude	1130
+11_1431	Versicherungsgebäude	1140
+11_1441	Kaufhaus	1160
+11_1442	Einkaufszentrum	1170
+11_1443	Markthalle	1270
+11_1444	Ladengebäude	1150
+11_1445	Kiosk	1180
+11_1448	Handel (allgemein)	1150
+11_1451	Gebäude für Messe, Ausstellung	1270
+11_1461	Hotel, Pension	1210
+11_1462	Jugendherberge	1220
+11_1463	Hütte mit Übernachtungsmöglichkeit	2640
+11_1468	Beherbergung (allgemein)	1020
+11_1471	Gaststätte	1240
+11_1472	Raststätte an Autobahn oder Fernstraße	1240
+11_1473	Hütte ohne Übernachtungsmöglichkeit	2640
+11_1474	Kantine	1250
+11_1478	Restauration (allgemein)	1240
+11_1481	Festsaal	1270
+11_1482	Kino	1280
+11_1483	Kegelhalle, Bowlinghalle	1290
+11_1484	Spielkasino	1300
+11_1488	Vergnügungsstätte (allgemein)	1260
+11_1701	Gebäude für Gewerbe und Industrie (allgemein)	1150
+11_1711	Fabrik	1320
+11_1721	Werkstatt	1330
+11_1731	Tankstelle	1340
+11_1741	Kühlhaus	1360
+11_1742	Speicher (soweit nicht OS 2725, 3931)	1370
+11_1743	Lagerhalle	1370
+11_1748	Lagerung (allgemein)	1370
+11_1751	Transportgebäude	1550
+11_1761	Forschungsgebäude	1380
+11_1771	Bergwerk, in Betrieb	1390
+11_1772	Bergwerk, außer Betrieb	1390
+11_1773	Bergwerk, vorübergehend stillgelegt	1390
+11_1774	Gradierwerk, Saline (soweit nicht OS 3912)	1400
+11_1778	Grundstoff (allgemein)	1390
+11_1781	Betriebliche Sozialeinrichtung (Gebäude)	2340
+11_1911	Windmühle	1430
+11_1913	Wassermühle, Schöpfwerk	1440
+11_2101	Gemischt genutztes Gebäude mit Wohnungen (allgemein)	1000
+11_2121	Wohngebäude mit Handel und Dienstleistungen	1050
+11_2131	Wohngebäude mit Gewerbe und Industrie	1080
+11_2141	Öffentliches Gebäude mit Wohnungen	1030
+11_2301	Gebäude für Verkehr (allgemein)	1470
+11_2311	Straßenmeisterei	1480
+11_2312	Wartehalle	1490
+11_2313	Fahrzeughalle	1640
+11_2318	Straßenverkehrsgebäude (allgemein)	1470
+11_2321	Bahnwärterhaus	1500
+11_2322	Lokschuppen, Wagenhalle	1470
+11_2323	Stellwerk, Blockstellengebäude	1500
+11_2324	Güterbahnhofsgebäude	1470
+11_2328	Schienenverkehrsgebäude (allgemein)	1470
+11_2332	Flugzeughalle	1540
+11_2338	Gebäude für Luftfahrt (allgemein)	1530
+11_2341	Werft	1560
+11_2342	Dock	1570
+11_2343	Schleuse	1580
+11_2344	Bootshaus	1590
+11_2348	Schiffahrtsgebäude (allgemein)	1550
+11_2351	Spannwerk	1600
+11_2358	Gebäude für Seilbahn (allgemein)	1600
+11_2361	Parkhaus	1610
+11_2362	Parkdeck	1620
+11_2363	Tiefgarage	1650
+11_2364	Sammelgarage	1630
+11_2365	Doppelgarage	1630
+11_2366	Einzelgarage	1630
+11_2367	Überdachter Stellplatz (soweit nicht Folie 082, OS 5315)	1630
+11_2368	Gebäude für Parken (allgemein)	1630
+11_2501	Gebäude für Versorgung (allgemein)	1660
+11_2511	Wasserwerk	1670
+11_2512	Pumpwerk	1680
+11_2514	Wasserturm	1690
+11_2515	Wasserbehälter	1690
+11_2518	Gebäude für Wasserversorgung (allgemein)	1790
+11_2521	Elektrizitätswerk	1700
+11_2522	Umspannwerk	1710
+11_2523	Umformer (soweit nicht in Folie 065/066, OS 3447)	1720
+11_2528	Gebäude für Elektrizitätsversorgung (allgemein)	1700
+11_2541	Sendeturm, Fernmeldeturm	1760
+11_2548	Gebäude für Funk- und Fernmeldewesen (allgemein)	1760
+11_2551	Öltank	2700
+11_2561	Oberirdisches Gebäude an unterirdischen Leitungen	2700
+11_2571	Gaswerk	1770
+11_2572	Gasometer	1770
+11_2581	Heizwerk	1780
+11_2591	Pumpwerk (nicht für Wasserversorgung)	1790
+11_2601	Gebäude für Entsorgung (allgemein)	1800
+11_2611	Kläranlage	1810
+11_2612	Bedürfnisanstalt	1830
+11_2619	Abwasserbeseitigung (soweit nicht OS 2611-2617)	1820
+11_2621	Abfall (Lagergebäude)	1840
+11_2622	Abfallverbrennungsanlage	1850
+11_2623	Betriebsgebäude einer Abfalldeponie	1860
+11_2628	Gebäude für Abfallbeseitigung (allgemein)	1860
+11_2701	Gebäude für Land- und Forstwirtschaft (allgemein)	1870
+11_2711	Landwirtschaftliches Wohngebäude	1070
+11_2721	Scheune	1880
+11_2723	Schuppen	1880
+11_2724	Stall	1890
+11_2725	Futtersilo (soweit nicht OS 1742, 3931)	2700
+11_2726	Scheune und Stall	1880
+11_2727	Gebäude für Tiergroßhaltung	1890
+11_2728	Landwirtschaftliches Betriebsgebäude (allgemein)	1870
+11_2731	Landwirtschaftliches Wohn- und Betriebsgebäude	1870
+11_2736	Forsthaus	1090
+11_2737	Jagdhaus, Jagdhütte	1920
+11_2738	Landwirtschaftliches Wohn- und Betriebsgebäude (allgemein)	1870
+11_2741	Gewächshaus, Treibhaus	2620
+11_2742	Auf Schienen verschiebbares Gewächshaus	2620
+11_2748	Gewächshaus (allgemein)	2620
+11_2801	Gebäude für Erholung (allgemein)	2540
+11_2811	Sporthalle	2560
+11_2812	Sportplatzgebäude	2570
+11_2818	Gebäude für Sport (allgemein)	2550
+11_2821	Hallenbad	2590
+11_2822	Gebäude der Freibadanlage	2580
+11_2828	Badegebäude (allgemein)	2580
+11_2831	Tribüne	2570
+11_2841	Badegebäude für medizinische Zwecke	2580
+11_2842	Sanatorium	2600
+11_2848	Kurgebäude (allgemein)	2540
+11_2851	Campingplatzgebäude	1230
+11_2861	Ferienhaus	1100
+11_2862	Wochenendhaus	1100
+11_2863	Gartenhaus	1200
+11_2868	Freizeithaus (allgemein)	2540
+11_2871	Empfangsgebäude	1490
+11_2872	Aquarium, Terrarium	2610
+11_2873	Tierschauhaus	2610
+11_2874	Stall	1890
+11_2878	Gebäude für Zoologie (allgemein)	2610
+11_2881	Empfangsgebäude	1490
+11_2882	Gewächshaus	2620
+11_2883	Pflanzenschauhaus	2630
+11_2888	Gebäude für Botanik (allgemein)	2630
+11_2891	Aussichtsturm	2700
+11_2894	Schutzhütte	2640
+11_2921	Ungenutztes Gebäude	2700
