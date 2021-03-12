@@ -1,7 +1,3 @@
-# City BIT
-
-The CityGML Building Interpolation Tool (City BIT) will be developed to interpolate building geometries for unavailable building models based on estmations and approximations. 
-
 ![E3D - Institute of Energy Efficiency and Sustainable Building, RWTH Aachen University](./pictures/e3dHeader.png)
 
 # CityBIT - CityGML Building Interpolation Tool 
