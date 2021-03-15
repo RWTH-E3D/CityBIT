@@ -11,7 +11,7 @@ The CityBIT aims to help urban planners and simulation scientists to facilitate 
 
 This GitLab page will be used to further develop the package and make it available under the [MIT License](https://gitlab.e3d.rwth-aachen.de/e3d-software-tools/citybit/citybit/-/blob/master/License/LICENSE).
 
-If you have any questions regarding CityBIT feel free to contact us at: [malhotra@e3d.rwth-aachen.de](mailto:malhotra@e3d.rwth-aachen.de)
+If you have any questions regarding CityBIT feel free to contact us at: [cityatb@e3d.rwth-aachen.de](mailto:cityatb@e3d.rwth-aachen.de)
 
 
 ## Description
