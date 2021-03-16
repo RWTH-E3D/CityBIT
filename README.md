@@ -34,9 +34,12 @@ CityBIT is currently being developed using Python 3.5+ and PySide2 python bindin
 Futhermore, the following external libraries/python packages are used in the different functionalities of CityBIT:
 1. Pyside2
 2. numpy
-3. sys
-4. csv
+3. matplotlib
+4. pandas
 5. lxml
+6. Pyproj
+7. scipy
+8. uuid
 
 ### Installation
 
