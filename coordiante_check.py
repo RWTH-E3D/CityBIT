@@ -3,28 +3,29 @@ import matplotlib.path as mplP
 import numpy as np
 import lxml.etree as ET
 
-
-
+# import of functions
 import string_manipulation as sm
 
 
 
+
 def border_check(border, list_of_border, list_of_coordinates):
-    """ checks for area vice verca"""
+    """checks if two area intersect each other """
     for point in list_of_coordinates:
         if border.contains_point(point):
             return True
+
     n_border = mplP.Path(np.array(list_of_coordinates))
     for point in list_of_border:
         if n_border.contains_point(point):
             return True
+
     return False
 
 
 
 def check_element(element, namespace, selCor_path, selCor_list):
-    """function checking groundSurface if building/buildingPart needs to be checked for interpolation"""
-
+    """searches groundSurface and checks if building/buildingPart is located inside the selCor_path/sel_Cor_list"""
     groundSurface_E = element.find('./bldg:boundedBy/bldg:GroundSurface', namespace)
     if groundSurface_E != None:
         posList_E = groundSurface_E.find('.//gml:posList', namespace)       # searching for list of coordinates
@@ -33,7 +34,7 @@ def check_element(element, namespace, selCor_path, selCor_list):
             coor_list = sm.get_2dPosList_from_str(posList_E.text)
             result = border_check(selCor_path, selCor_list, coor_list)
             
-        else:           # case hamburg lod2 2020
+        else:                           # case hamburg lod2 2020
             pos_Es = groundSurface_E.findall('.//gml:pos', namespace)
             polygon = []
             for pos_E in pos_Es:
@@ -42,12 +43,10 @@ def check_element(element, namespace, selCor_path, selCor_list):
             coor_list = sm.get_2dPosList_from_str(polyStr)
             result = border_check(selCor_path, selCor_list, coor_list)
 
-        if result:
-            # groundSurface of building is in the selected area -> building is considered
+        if result:                      # groundSurface of building is in the selected area -> building is considered
             return True
-        else:
-            # groundSurface of building is not in the selected area -> checking if there are buildingParts
-            pass
+        else:                           # groundSurface of building is not in the selected area -> checking if there are buildingParts
+            return False
     
     #  checking if no groundSurface element has been found
     else:               # case for lod1 files 

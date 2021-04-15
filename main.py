@@ -22,6 +22,7 @@ import window0 as w0
 import window1 as w1
 import window2 as w2
 
+
 # setting system environment variable
 dirname = os.path.dirname(PySide2.__file__)
 plugin_path = os.path.join(dirname, 'plugins', 'platforms')
@@ -41,13 +42,15 @@ sizer = True
 pypath = os.path.dirname(os.path.realpath(__file__))
 
 # global variables
-value_dict = {"iCRS": None, "oCRS": None, "cList": None, "xCen": None, "yCen": None, "xCenOrig": None, "yCenOrig": None, "groundSurface": None, "area": None, "sideRatio": None, "bHeading": None, "sHeight": None, "bHeight": None, "rHeight": None, "rType": None, "rHeading": None, "bFunction": None, "terrainIntersection": None, "SAG": None, "SBG": None, "dataPath": None, "interMethod": None, "sameAttrib": None, "selectBy": None, "expoPath": None, "bList": None, "noB": None, "radius": None}
+value_dict = {"iCRS": None, "oCRS": None, "cList": None, "xCen": None, "yCen": None, "xCenOrig": None, "yCenOrig": None, "groundSurface": None, "area": None, "sideRatio": None, "bHeading": None, "sHeight": None, "bHeight": None, "rHeight": None, "rType": None, "rHeading": None, "bFunction": None, "terrainIntersection": None, "SAG": None, "SBG": None, "u_GML_ID": None, "dataPath": None, "interMethod": None, "sameAttrib": None, "selectBy": None, "expoPath": None, "bList": None, "noB": None, "radius": None}
 inter_dict = {"groundSurface": True, "area": True, "sideRatio": True, "bHeading": True, "sHeight": True, "bHeight": True, "rHeight": True, "rType": True, "rHeading": True, "bFunction": True, "terrainIntersection": True, "SAG": True, "SBG": True}
 
+# border of selected CRS
 x_min = 0
 x_max = 0
 y_min = 0
 y_max = 0
+
 
 
 
@@ -59,9 +62,8 @@ class mainWindow(QtWidgets.QWidget):
         self.initUI()
 
 
-
     def initUI(self):
-        global posx, posy, width, height, sizefactor, sizer
+        global posx, posy, width, height, sizefactor, sizer, value_dict
 
         # setup of gui / layout
         if sizer:
@@ -76,7 +78,6 @@ class mainWindow(QtWidgets.QWidget):
 
         self.uGrid = QtWidgets.QGridLayout()
 
-        # choosing CRS
         self.lbl_iCRS = QtWidgets.QLabel('Input CRS:')
         self.uGrid.addWidget(self.lbl_iCRS, 0, 0, 1, 1)
 
@@ -105,7 +106,6 @@ class mainWindow(QtWidgets.QWidget):
 
         self.gB_groundSurface = QtWidgets.QGroupBox('Ground surface')
         self.vbox.addWidget(self.gB_groundSurface)
-        # self.gB_groundSurface.setStyleSheet("QGroupBox {border: 1px solid rgb(90,90,90);margin-top: 20px;} QGroupBox::title {bottom: 6px; left: 5px;}")
 
         self.gS_grid = QtWidgets.QGridLayout()
         self.gB_groundSurface.setLayout(self.gS_grid)
@@ -211,6 +211,7 @@ class mainWindow(QtWidgets.QWidget):
         self.btn_next.setToolTip('Move to the next window')
         self.l_grid.addWidget(self.btn_next, 2, 4, 1, 1)
 
+
         # assigning functions to buttons
         self.btn_checkCRS.clicked.connect(self.func_checkCRS)
         self.btn_loadCSV.clicked.connect(self.func_loadCSV)
@@ -221,6 +222,7 @@ class mainWindow(QtWidgets.QWidget):
         self.btn_reset.clicked.connect(self.func_reset)
         self.btn_next.clicked.connect(self.func_next)
 
+        # toggeling radio button
         self.rB_center.toggled.connect(self.func_center)
 
         # variables
@@ -232,8 +234,6 @@ class mainWindow(QtWidgets.QWidget):
         # setting up table
         cbit_f.displaysetup(self)
 
-        # get old data
-        global value_dict
 
         w0.updateWindow0(self, value_dict)
         w0.center_of_list(self)
@@ -282,6 +282,7 @@ class mainWindow(QtWidgets.QWidget):
         global value_dict, inter_dict, posx, posy, x_min, x_max, y_min, y_max
         res, value_dict, inter_dict = w0.gatherInfo0(self, value_dict, inter_dict)
         if res:
+            # setting results for CRS border 
             x_min = self.x_min
             x_max = self.x_max
             y_min = self.y_min
@@ -422,10 +423,9 @@ class buildingInfo(QtWidgets.QWidget):
         w1.updateWindow1(self, value_dict)
         w1.changeRoof(self, pypath)
 
-    def func_updateRoof(self):
-        w1.changeRoof(self, pypath)
-    
 
+    def func_updateRoof(self):
+        w1.changeRoof(self, pypath)    
 
 
     def func_back(self):
@@ -440,7 +440,7 @@ class buildingInfo(QtWidgets.QWidget):
     def func_reset(self):
         global value_dict, inter_dict, posx, posy
         values = ["bHeight", "rHeight", "rType", "rHeading", "bFunction", "SAG", "SBG"]
-        # inters would be identical to values
+        # inters (inter_dict keys) would be identical to values
         value_dict, inter_dict = gf.reset_dicts(values, values, value_dict, inter_dict)
         posx, posy = gf.dimensions(self)
         gf.next_window(self, buildingInfo())
@@ -455,7 +455,7 @@ class buildingInfo(QtWidgets.QWidget):
         else:
             pass
 
-        
+
 
 
 class datasetInfo(QtWidgets.QWidget):
@@ -465,12 +465,7 @@ class datasetInfo(QtWidgets.QWidget):
         self.initUI()
 
     def initUI(self):
-        global posx, posy, width, height, sizefactor, x_min, x_max, y_min, y_max
-
-        self.x_min = x_min
-        self.x_max = x_max
-        self.y_min = y_min
-        self.y_max = y_max
+        global posx, posy, width, height, sizefactor
 
         gf.windowSetup(self, posx, posy, width, height, pypath, 'CityBIT - Export Options')
 
@@ -480,31 +475,40 @@ class datasetInfo(QtWidgets.QWidget):
 
         gf.load_banner(self, os.path.join(pypath, r'pictures\e3dHeader.png'), sizefactor)
 
+        self.uGrid = QtWidgets.QGridLayout()
+        self.lbl_gml_ID = QtWidgets.QLabel('gml:id :')
+        self.uGrid.addWidget(self.lbl_gml_ID, 0, 0, 1, 1)
+
+        self.txtB_u_GML_ID = QtWidgets.QLineEdit()
+        self.txtB_u_GML_ID.setPlaceholderText('gml:id of created building')
+        self.txtB_u_GML_ID.setToolTip('uuid is used if left empty')
+        self.uGrid.addWidget(self.txtB_u_GML_ID, 0, 1, 1, 5)
+
+        self.vbox.addLayout(self.uGrid)
+
         self.gB_interpol = QtWidgets.QGroupBox('Interpolation')
         self.vbox.addWidget(self.gB_interpol)
         
         self.iGrid = QtWidgets.QGridLayout()
-        # self.iGrid.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
         self.gB_interpol.setLayout(self.iGrid)
 
         self.btn_dataFolder = QtWidgets.QPushButton('Select input directory')
         self.btn_dataFolder.setToolTip('Path to dataset for interpolation and collision check')
-        # self.btn_dataFolder.setSizeConstraint(QtWidgets.QLayout.SetFixedSize)
-        self.iGrid.addWidget(self.btn_dataFolder, 0, 0, 1, 1)
+        self.iGrid.addWidget(self.btn_dataFolder, 1, 0, 1, 1)
         
         self.txtB_dataFolder = QtWidgets.QLineEdit()
-        self.txtB_dataFolder.setPlaceholderText('Directory for interpolation')
+        self.txtB_dataFolder.setPlaceholderText('Data set for interpolation')
         self.txtB_dataFolder.setReadOnly(True)
-        self.iGrid.addWidget(self.txtB_dataFolder, 0, 1, 1, 1)
+        self.iGrid.addWidget(self.txtB_dataFolder, 1, 1, 1, 1)
 
         self.btn_exportPath = QtWidgets.QPushButton('Output directory')
         self.btn_exportPath.setToolTip('Path to which new file should be written')
-        self.iGrid.addWidget(self.btn_exportPath, 1, 0, 1, 1)
+        self.iGrid.addWidget(self.btn_exportPath, 2, 0, 1, 1)
 
         self.txtB_exportPath = QtWidgets.QLineEdit()
         self.txtB_exportPath.setPlaceholderText('Output directory')
         self.txtB_exportPath.setReadOnly(True)
-        self.iGrid.addWidget(self.txtB_exportPath, 1, 1, 1, 1)
+        self.iGrid.addWidget(self.txtB_exportPath, 2, 1, 1, 1)
 
         self.lbl_interMethod = QtWidgets.QLabel('Interpolation method:')
         self.iGrid.addWidget(self.lbl_interMethod, 3, 0, 1, 1)
@@ -655,13 +659,12 @@ class datasetInfo(QtWidgets.QWidget):
         self.gB_radius.toggled.connect(self.func_radius)
         self.gB_coor.toggled.connect(self.func_coor)
 
-
-
+        # variable for coordinate border of interpolation input
         self.border_list = []
-
 
         w2.updateWindow2(self, value_dict)
 
+        # checking if interpolation overview needs to be displayed
         if sum(inter_dict.values()) == 0:
             # interpolation not needed
             gf.messageBox(self, 'Information', 'Interpolation not needed.\nSelect input folder for collsion check with existing buildings.')
@@ -676,6 +679,7 @@ class datasetInfo(QtWidgets.QWidget):
 
 
     def func_noB(self):
+        # changing GUI for number of building selection
         if self.gB_noB.isChecked():
             # disable others
             self.gB_radius.setChecked(False)
@@ -685,8 +689,8 @@ class datasetInfo(QtWidgets.QWidget):
             pass
 
 
-
     def func_radius(self):
+        # changing GUI for radius selection
         if self.gB_radius.isChecked():
             # disable others
             self.gB_noB.setChecked(False)
@@ -696,8 +700,8 @@ class datasetInfo(QtWidgets.QWidget):
             pass
 
 
-
     def func_coor(self):
+        # changing GUI for coordiante selection
         if self.gB_coor.isChecked():
             self.gB_noB.setChecked(False)
             self.gB_radius.setChecked(False)
@@ -708,15 +712,15 @@ class datasetInfo(QtWidgets.QWidget):
 
 
     def func_dataset(self):
+        # getting dataset path
         global value_dict
         value_dict["dataPath"] = gf.select_folder(self, self.txtB_dataFolder, 'Select folder containing dataset for interpolation')
 
 
-
     def func_exportPath(self):
+        # getting export path
         global value_dict
         value_dict["expoPath"] = gf.select_folder(self, self.txtB_exportPath, 'Select directory to save to')
-
 
 
     def func_back(self):
@@ -728,12 +732,13 @@ class datasetInfo(QtWidgets.QWidget):
     def func_reset(self):
         global value_dict, inter_dict, posx, posy
         values = ["dataPath", "interMethod", "sameAttrib", "selectBy", "expoPath", "bList", "noB", "radius"]
-        # inters is empty
+        # inters (inter_dict keys) is empty
         value_dict, inter_dict = gf.reset_dicts(values, [], value_dict, inter_dict)
         posx, posy = gf.dimensions(self)
         gf.next_window(self, datasetInfo())
 
     def func_compute(self):
+        # start interpolation, building creation, collison check
         global value_dict, inter_dict
         value_dict = w2.gatherInfo2(self, value_dict)
         import time
@@ -741,7 +746,8 @@ class datasetInfo(QtWidgets.QWidget):
         cbit_f.compute(self, value_dict, inter_dict)
         gf.windowTitle(self, 'export options')
         end = time.time()
-        print(end - start)
+        if False:
+            print(end - start)
 
 
 
@@ -784,7 +790,7 @@ class about(QtWidgets.QWidget):
 
 
     def open_repo(self):
-        os.startfile('www.e3d.rwth-aachen.de')
+        os.startfile('https://gitlab.e3d.rwth-aachen.de/e3d-software-tools/citybit/citybit')
 
     def close_about(self):
         self.hide()
@@ -815,7 +821,7 @@ class summary(QtWidgets.QWidget):
         self.lst_inter.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         for key in inter_dict:
             if inter_dict[key]:
-                self.lst_inter.addItem(va.intDict_toNice[key])
+                self.lst_inter.addItem(va.intDict_toDispName[key])
 
         self.btn_close = QtWidgets.QPushButton('Close')
         self.vbox.addWidget(self.btn_close)
@@ -823,11 +829,8 @@ class summary(QtWidgets.QWidget):
         self.btn_close.clicked.connect(self.close_about)
 
 
-
     def close_about(self):
         self.hide()
-
-
 
 
 

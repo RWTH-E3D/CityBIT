@@ -1,12 +1,8 @@
-# dicts for roofTypes
+# dicts for roof types and building functions
+
+
 # supported roofTypes:
-roofTypes = {'': 0, 'flat roof': 1000, 'monopitch roof': 1010, 'dual pent roof': 1020,
-             'gabled roof': 1030, 'hipped roof': 1040, 'pavilion roof': 1070}
-
-
-intDict_toNice = {"groundSurface": "Base plate polygon", "area": "Area of base plate polygon", "sideRatio": "Side ratio of base plate polygon", "bHeading": "Building heading",
-                  "sHeight": "Elevation of base plate polygon", "bHeight": "Height of building", "rHeight": "Roof height", "rType": "Roof type", "rHeading": "Roof heading",
-                  "bFunction": "Building Function", "terrainIntersection": "Terrain intersection", "SAG": "Storeys above ground", "SBG": "Storeys below ground"}
+roofTypes = {'': 0, 'flat roof': 1000, 'monopitch roof': 1010, 'dual pent roof': 1020, 'gabled roof': 1030, 'hipped roof': 1040, 'pavilion roof': 1070}
 
 # supported buildingFunctions:
 buildingFunctions = {'': 0, 'residential building': 1000, 'tenement': 1010, 'hostel': 1020, 'residential- and administration building': 1030, 'residential- and office building': 1040,
@@ -39,9 +35,17 @@ buildingFunctions = {'': 0, 'residential building': 1000, 'tenement': 1010, 'hos
 
 
 
+# inter_dict keys to display names
+intDict_toDispName = {"groundSurface": "Base plate polygon", "area": "Area of base plate polygon", "sideRatio": "Side ratio of base plate polygon", "bHeading": "Building heading",
+                      "sHeight": "Elevation of base plate polygon", "bHeight": "Height of building", "rHeight": "Roof height", "rType": "Roof type", "rHeading": "Roof heading",
+                      "bFunction": "Building Function", "terrainIntersection": "Terrain intersection", "SAG": "Storeys above ground", "SBG": "Storeys below ground"}
+
+
+
 # AFIS-ALKIS-ATKIS to CityGML
-roofType_ALKIS_to_CityGML = {'1000': '1000', '2100': '1010', '2200': '1020', '3100': '1030', '3200': '1040', '3300': '1050', '3400': '1060',
-                             '3500': '1070', '3600': '1080', '3070': '1090', '3800': '1100', '3900': '1110', '4000': '1120', '5000': '1130', '9999': '1130'}
+
+roofType_ALKIS_to_CityGML = {'1000': '1000', '2100': '1010', '2200': '1020', '3100': '1030', '3200': '1040', '3300': '1050', '3400': '1060', '3500': '1070', '3600': '1080',
+                             '3070': '1090', '3800': '1100', '3900': '1110', '4000': '1120', '5000': '1130', '9999': '1130'}
 
 buildingFunction_ALKIS_to_CityGML = {'31001_1000': '1000', '31001_1010': '1010', '31001_1020': '1020', '31001_1021': '2350', '31001_1022': '2360', '31001_1023': '1020',
                                      '31001_1024': '1020', '31001_1025': '1220', '31001_1100': '1000', '31001_1110': '2340', '31001_1120': '1030', '31001_1121': '1030',

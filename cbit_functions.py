@@ -9,6 +9,9 @@ import lxml.etree as ET
 from datetime import date, datetime
 import glob
 import matplotlib.path as mplP
+import uuid
+from scipy.interpolate import griddata
+from scipy.spatial import ConvexHull
 
 # import of functions
 import classes as cl
@@ -19,6 +22,8 @@ import vari as va
 import coordiante_check as CC
 import f_fafb
 import window0 as w0
+
+
 
 
 def check_CRS(self, notify=False):
@@ -42,10 +47,6 @@ def check_CRS(self, notify=False):
     if oCRS_text != '':
         try:
             oCRS = pyproj.CRS.from_epsg(oCRS_text)
-            # print(oCRS)
-            # print(oCRS.name)
-            # print(oCRS.axis_info)
-            # print(oCRS.area_of_use)
             if oCRS.axis_info[0].unit_name == 'metre' and oCRS.axis_info[1].unit_name == 'metre':
                 self.uom = 'm'
             else:
@@ -56,8 +57,6 @@ def check_CRS(self, notify=False):
             x_min4326, y_min4326, x_max4326, y_max4326 = oCRS.area_of_use.bounds
             self.x_min, self.y_min = pyproj.transform(crs_4326, oCRS, x_min4326, y_min4326, always_xy=True)
             self.x_max, self.y_max = pyproj.transform(crs_4326, oCRS, x_max4326, y_max4326, always_xy=True)
-            # print(self.x_min, self.y_min)
-            # print(self.x_max, self.y_max)
             self.oCRS = oCRS
             self.crs_checked = True
         except:
@@ -97,8 +96,7 @@ def x_y_check(self, x_in, y_in, to_list=False, to_center=False):
     X = None
     Y = None
 
-    # checking if entered x can be converted to float
-    if x_in != '':
+    if x_in != '':              # checking if entered x can be converted to float
         try:
             X = float(x_in)
         except:
@@ -110,8 +108,7 @@ def x_y_check(self, x_in, y_in, to_list=False, to_center=False):
         gf.messageBox(self, 'Warning!', msg)
         return False
 
-    # checking if entered y can be converted to float
-    if y_in != '':
+    if y_in != '':              # checking if entered y can be converted to float
         try:
             Y = float(y_in)
         except:
@@ -123,17 +120,16 @@ def x_y_check(self, x_in, y_in, to_list=False, to_center=False):
         gf.messageBox(self, 'Warning!', msg)
         return False
 
-
     if X != None and Y != None:
         # checking if coordinates need to be transformed
         if self.txtB_iCRS.text() != '' and self.txtB_iCRS.text() != self.txtB_oCRS.text():
             iCRS = 'EPSG:' + self.txtB_iCRS.text()
             oCRS = 'EPSG:' + self.txtB_oCRS.text()
             x, y =  pyproj.transform(iCRS, oCRS, X, Y, always_xy=True)
-        else:
-            # coordinates don't need to be transformed
+        else:                   # coordinates don't need to be transformed
             x = X
             y = Y
+
         # checking if x coordinate is within bounds of the output CRS
         if self.x_min > x:
             msg = str(x) + ' is too small. Please choose a value equal or greater than ' + str(self.x_min)
@@ -165,8 +161,7 @@ def x_y_check(self, x_in, y_in, to_list=False, to_center=False):
             w0.point_to_table(self, [x, y])
             self.txtB_iCRS.setReadOnly(True)
             self.txtB_oCRS.setReadOnly(True)
-        else:
-            # not adding duplicates
+        else:                   # not adding duplicates
             print('point', [x, y], 'already in groundSurface_list')
 
 
@@ -178,7 +173,6 @@ def x_y_check(self, x_in, y_in, to_list=False, to_center=False):
         self.iCRS = ''
 
     return True
-        
 
 
 
@@ -238,7 +232,6 @@ def compute(self, value_dict, inter_dict):
                     border_list = value_dict["bList"]
                     radius = None
                 elif value_dict["selectBy"] == 'number of buildings':
-                    # need cool new function for getting coordinates here
                     border_list = f_fafb.fafnoB(filenames, [x_center, y_center], value_dict["noB"], value_dict["sameAttrib"], attribValue)
                     radius = None
                 elif value_dict["selectBy"] == 'radius':
@@ -251,18 +244,32 @@ def compute(self, value_dict, inter_dict):
                 else:
                     print("this point should not be reachable (cbit_fucntions) getting border_list")
 
-
                 gf.windowTitle(self, 'collecting data from dataset')
                 df, df_area = inter_f.interpolation_start(filenames, value_dict["selectBy"], value_dict["sameAttrib"], attribValue, [x_center, y_center], border_list, radius, inter_dict, terrainRadius)
 
                 # checking if there is data in dataframe
                 if len(df.index) > 0 or (len(df_area.index) > 0 and inter_dict["area"] == True):
                     # found data for interpolation
-                    pass
+
+                    # checking if data points provide ConvexHull for interpolation
+                    centerDF = df[["X_center", "Y_center"]].copy()
+                    hull = ConvexHull(centerDF.values)
+                    hullCoor = np.array(centerDF.values)[hull.vertices]
+                    hullBorder = mplP.Path(hullCoor)
+
+                    if hullBorder.contains_point((x_center, y_center)):
+                        # new center is within the collected data -> can continue
+                        pass
+                    else:           # new center is outside of the collected data -> can't interpolate
+                        print("WARNING!\nCan't extrapolate data")
+                        gf.messageBox(self, 'Error', 'Please increase the interpolation data.\nCollected data does not create ConvexHull\naround new center point.')
+                        return
+
                 else:
                     gf.messageBox(self, 'Error', 'Did not find any data for interpolation')
                     return
                 
+
                 # main interpolation part
                 if inter_dict["groundSurface"]:
                     
@@ -271,7 +278,7 @@ def compute(self, value_dict, inter_dict):
                         gf.windowTitle(self, 'interpolating ground area')
                         area = inter_f.interpolate_value(df_area, x_center, y_center, "area", value_dict["interMethod"])
                     else:
-                        # surface area given by user and does not need to bei interpolated
+                        # surface area given by user and does not need to be interpolated
                         area = value_dict["area"]
 
                     # interpolating side to side ratio
@@ -325,17 +332,17 @@ def compute(self, value_dict, inter_dict):
                     # buildingHeight already given
                     buildingHeight = value_dict["bHeight"]
 
+
                 if inter_dict["rType"]:
                     gf.windowTitle(self, 'interpolating roof type')
                     if len(gS_list) != 4:
-                        roofType_value = inter_f.interpolate_categroy(df, "roofType", x_center, y_center, value_dict["interMethod"], posRes= ['1000', '1070'])
-                        roofType = list(va.roofTypes.keys())[list(va.roofTypes.values()).index(float(roofType_value))]
+                        roofType = inter_f.interpolate_categroy(df, x_center, y_center, "roofType", value_dict["interMethod"], posRes= ['1000', '1070'])
                     else:
-                        roofType_value = inter_f.interpolate_categroy(df, "roofType", x_center, y_center, value_dict["interMethod"], posRes= ['1000', '1010', '1020', '1030', '1040', '1070'])
-                        roofType = list(va.roofTypes.keys())[list(va.roofTypes.values()).index(float(roofType_value))]
+                        roofType = inter_f.interpolate_categroy(df, x_center, y_center, "roofType", value_dict["interMethod"], posRes= ['1000', '1010', '1020', '1030', '1040', '1070'])
                 else:
                     # roofType already given
                     roofType = value_dict["rType"]
+
 
                 if inter_dict["rHeight"]:
                     gf.windowTitle(self, 'interpolating roof height')
@@ -348,10 +355,11 @@ def compute(self, value_dict, inter_dict):
                         roofHeight = 0
                     pass
 
+
                 # interpolating terrain intersection
                 if inter_dict["terrainIntersection"]:
                     terrain_raw = df["intersectionCoor"]
-                    # creating one list from list of list 
+                    # creating one list from list of lists 
                     terrain_data = [item for sublist in terrain_raw for item in sublist]
                     # remvoing duplicates 
                     terrain_data = [list(t) for t in set(tuple(element) for element in terrain_data)]
@@ -360,12 +368,10 @@ def compute(self, value_dict, inter_dict):
                     x_values = [i[0]for i in gS_list]
                     y_values = [i[1]for i in gS_list]
 
-                    from scipy.interpolate import griddata
-
                     gf.windowTitle(self, 'interpolating terrain intersection')
                     terrainHeights = griddata((df_terrain["x_coor"], df_terrain["y_coor"]), df_terrain["intersectionHeight"], (x_values, y_values), method=value_dict["interMethod"])
 
-                    max_ele_dif = 20
+                    max_ele_dif = 10
 
                     terrainIntersection = []
                     # checking if building is above groundSurface
@@ -394,25 +400,25 @@ def compute(self, value_dict, inter_dict):
                                 terrainIntersection.append(point + [surfaceHeight + buildingHeight - roofHeight])
                                 
                 else:
-                    # here stuff for user given terrainIntersection inforamtion
+                    # here terrainIntersection inforamtion from user input
+                    # to be added in a future update
                     pass
 
-                if inter_dict["rHeading"] and roofType != 1000 and roofType != 1040 and roofType != 1070:
+
+                # interpolating roof heading
+                if inter_dict["rHeading"] and roofType != '1000' and roofType != '1040' and roofType != '1070':
                     gf.windowTitle(self, 'interpolating roof heading')
 
-                    # removing useless values from dataFrame
-                    dfC = df[df['roof_X'] != 'rH_N/D']
-                    dfC = dfC[dfC['roof_Y'] != 'rH_N/D']
-                    
-                    roof_X = inter_f.interpolate_value(dfC, x_center, y_center, "roof_X", value_dict["interMethod"])
-                    roof_Y = inter_f.interpolate_value(dfC, x_center, y_center, "roof_Y", value_dict["interMethod"])
+                    print(x_center, y_center, "roof_X", value_dict["interMethod"])
+                    roof_X = inter_f.interpolate_value(df, x_center, y_center, "roof_X", value_dict["interMethod"])
+                    roof_Y = inter_f.interpolate_value(df, x_center, y_center, "roof_Y", value_dict["interMethod"])
                     roof_angle =  TWOd.angle((0,0), (roof_X, roof_Y))
 
                     if math.isnan(roof_angle):
                         heading_index = 0
                         print("roof angle is NaN -> heading_index set to 0")
+                    
                     else:
-
                         # getting rotation direction
                         direction = TWOd.rotationDirection([x_center, y_center], gS_list[0], gS_list[1])
                         
@@ -427,30 +433,23 @@ def compute(self, value_dict, inter_dict):
                                 min_dif = abs(corrected_angle - roof_angle)
                                 heading_index = i                        
 
-                        # calculate the angles of the ground surface and then take the one side with the smallest diference
-
                         print("calculated ROOFangle:\t", roof_angle)
-
-
-                        print(heading_index)
+                        print("heading index:\t\t", heading_index)
 
                 else:
                     # heading_index not needed or given
-                    """
-                    somehow need to code the stuff for northish, eastish, southish and westish
-                    and also the catch if user inputed coordinaters and selected an angle
-
-                    # this should already be done done below
-                    """
                     pass
+
 
                 if inter_dict["bFunction"]:
                     gf.windowTitle(self, 'interpolating building function')
-                    buildingFunction_value = inter_f.interpolate_categroy(df, "buildingFunction", x_center, y_center, value_dict["interMethod"])
-                    buildingFunction = list(va.buildingFunctions.keys())[list(va.buildingFunctions.values()).index(float(buildingFunction_value))]
+                    # buildingFunction_value = inter_f.interpolate_categroy(df, x_center, y_center, "buildingFunction", value_dict["interMethod"])
+                    # buildingFunction = list(va.buildingFunctions.keys())[list(va.buildingFunctions.values()).index(float(buildingFunction_value))]
+                    buildingFunction = inter_f.interpolate_categroy(df, x_center, y_center, "buildingFunction", value_dict["interMethod"])
                 else:
-                    # buildingFunction not needed or given
+                    # buildingFunction given
                     buildingFunction = value_dict["bFunction"]
+
 
                 if inter_dict["SAG"]:
                     gf.windowTitle(self, 'interpolating storeys above ground')
@@ -460,6 +459,7 @@ def compute(self, value_dict, inter_dict):
                     # SAG not needed or given
                     storeysAboveGround = value_dict["SAG"]
 
+
                 if inter_dict["SBG"]:
                     gf.windowTitle(self, 'interpolating storeys below ground')
                     print('cant interpolate SBG yet')
@@ -467,11 +467,14 @@ def compute(self, value_dict, inter_dict):
                 else:
                     # SBG not needed or given
                     storeysBelowGround = value_dict["SBG"]
-                    
+
+
             else:
                 gf.messageBox(self, 'error', 'directory does not contain any .xml or .gml files')
                 return
+
         interpol_name = value_dict["interMethod"] + ' interpolation'
+
     else:
         # interpolation not needed
         interpol_name = 'user entered values'
@@ -485,7 +488,6 @@ def compute(self, value_dict, inter_dict):
         else:
             roofHeight = 0
 
-
         surfaceHeight = value_dict["sHeight"]
 
         buildingHeight = value_dict["bHeight"]
@@ -496,7 +498,7 @@ def compute(self, value_dict, inter_dict):
 
 
     if not inter_dict["rHeading"]:
-        if roofType != 'flat roof' and roofType != 'hipped roof' and roofType != 'pavilion roof':
+        if roofType != '1000' and roofType != '1040' and roofType != '1070':
             if inter_dict["groundSurface"]:
                 pp = gS_list.copy()
                 gS_copy = gS_list.copy()
@@ -533,15 +535,15 @@ def compute(self, value_dict, inter_dict):
         else:
             heading_index = 1
 
-        # if coordinates are given heading_index = value_dict["rHeading"] - 1
-        # else (interpolation) sort coordinates then get heading_fakeindex from s
 
     # checking if new coordinates collide with existing buildings within dataset
     if filenames != None and len(filenames) > 0:
         gf.windowTitle(self, 'testing for collison with existing buildings')
-        if collision_check(gS_list, filenames):
+        collision_result, file_overlap, element_id = collision_check(gS_list, filenames)
+        if collision_result:
             print('collision check failed')
-            gf.messageBox(self, 'Error', 'New groundSurface collided with existing buildings')
+            msg = 'New groundSurface collided with existing building ' + element_id + ' in file ' + file_overlap +'.'
+            gf.messageBox(self, 'Error', msg)
             print('continuing despite collision')
             # return
         else:
@@ -549,6 +551,10 @@ def compute(self, value_dict, inter_dict):
 
     gf.windowTitle(self, 'creating building volume')
 
+
+    """
+    calculating polygons
+    """
 
     # surfaceHeight_plusHouse
     sH_pHouse = round(surfaceHeight + buildingHeight, 3)
@@ -568,7 +574,6 @@ def compute(self, value_dict, inter_dict):
     envelope_dict['lowerCorner'] = [x_min, y_min, surfaceHeight]
     envelope_dict['upperCorner'] = [x_max, y_max, sH_pHouse]
 
-
     gS_list.append(gS_list[0])
     if terrainIntersection != []:
         terrainIntersection.append(terrainIntersection[0])
@@ -585,9 +590,9 @@ def compute(self, value_dict, inter_dict):
     roof_dict = {}
     
     # calculating walls and roofs
-    if roofType == 'flat roof':
+    if roofType == '1000':
         # calculating wall surfaces
-        for i in range(4):
+        for i in range(len(gS_list) - 1):
             name = 'Outer Wall ' + str(i+1)
             wall = [gS_list[i] + [surfaceHeight], gS_list[i+1] + [surfaceHeight], gS_list[i+1] + [sH_pHouse], gS_list[i] + [sH_pHouse]]
             wall.append(wall[0])
@@ -602,13 +607,12 @@ def compute(self, value_dict, inter_dict):
         roof_dict = {'Roof 1': rS_3d}
 
 
-    elif roofType == 'monopitch roof':
+    elif roofType == '1010':
         # calculating wall surfaces
         # assuming the heading equals the wall with the lower side of the roof
         highPoints = []
         for i in range(4):
             name = 'Outer Wall ' + str(i+1)
-            print(heading_index)
             if i == heading_index:
                 # both low
                 wall = [gS_list[i] + [surfaceHeight], gS_list[i+1] + [surfaceHeight], gS_list[i+1] + [sH_pWall], gS_list[i] + [sH_pWall]]
@@ -639,7 +643,7 @@ def compute(self, value_dict, inter_dict):
         roof_dict = {'Roof 1': rS_3d}
 
 
-    elif roofType == 'dual pent roof':
+    elif roofType == '1020':
         # calculating wall surfaces
         # assuming the heading equals the side with the higher roof
         sH_pHalfRoof = sH_pHouse - (roofHeight / 3)
@@ -687,7 +691,7 @@ def compute(self, value_dict, inter_dict):
         roof_dict[name] = roof
 
 
-    elif roofType == 'gabled roof':
+    elif roofType == '1030':
         # calculating wall surfaces
         # assuming the heading equals one of the 4 sided walls
         for i in range(4):
@@ -716,7 +720,7 @@ def compute(self, value_dict, inter_dict):
             roof_dict['Roof 2'] = [gS_list[3]+ [sH_pWall], gS_list[0]+ [sH_pWall], C0 + [sH_pHouse], C1 + [sH_pHouse], gS_list[3]+ [sH_pWall]]
 
 
-    elif roofType == 'hipped roof':
+    elif roofType == '1040':
         # calculating wall surfaces
         for i in range(4):
             name = 'Outer Wall ' + str(i+1)
@@ -764,9 +768,9 @@ def compute(self, value_dict, inter_dict):
             roof_dict['Roof 4'] = [sH_pWall_list[3], sH_pWall_list[0], C0, C1, sH_pWall_list[3]]
 
 
-    elif roofType == 'pavilion roof':
+    elif roofType == '1070':
         # calculating wall surfaces
-        for i in range(len(gS_list)-1):
+        for i in range(len(gS_list) - 1):
             name = 'Outer Wall ' + str(i+1)
             wall = [gS_list[i] + [surfaceHeight], gS_list[i+1] + [surfaceHeight], gS_list[i+1] + [sH_pWall], gS_list[i] + [sH_pWall]]
             wall.append(wall[0])
@@ -782,9 +786,8 @@ def compute(self, value_dict, inter_dict):
             roof_dict[name]= roof
 
 
-
     else:
-        print('got unexpected roofType ' + roofType + ' for roof calculation.\naborting')
+        print('got unexpected roofType code "' + roofType + '" for roof calculation.\nABORTING!')
         return
 
 
@@ -793,13 +796,13 @@ def compute(self, value_dict, inter_dict):
     storeysBelowGround = False
     
     gf.windowTitle(self, 'writing building file')
-    building_writer(self, envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, value_dict["expoPath"], interpol_name)
+    building_writer(self, value_dict["u_GML_ID"], envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, value_dict["expoPath"], interpol_name)
     gf.messageBox(self, 'Succes', 'New file was created')
 
 
 
 
-def building_writer(self, envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, exppath, interpol_method):
+def building_writer(self, u_GML_id, envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, exppath, interpol_method):
     """function to write new file containing building"""
     # getting info from search_info
     crs = "urn:adv:crs:ETRS89_UTM32*DE_DHHN2016_NH*GCG2016"
@@ -817,7 +820,6 @@ def building_writer(self, envelope_dict, gS_dict, gS_list, terrainIntersection, 
         nsClass = cl.CGML1
     else:
         nsClass = cl.CGML2
-
 
 
     # creating new namespacemap
@@ -845,46 +847,64 @@ def building_writer(self, envelope_dict, gS_dict, gS_list, terrainIntersection, 
     else:
         print('error finding crs')
 
+
+    # setting gml:id
+    if u_GML_id != None:
+        gmlID = u_GML_id
+    else:
+        gmlID = "e3D_CityBIT_" + str(uuid.uuid1())
+
     """create new building here"""
     cityObjectMember_E = ET.SubElement(nroot_E, ET.QName(nsClass.core, 'cityObjectMember'))
-    building_E = ET.SubElement(cityObjectMember_E, ET.QName(nsClass.bldg, 'Building'), attrib={ET.QName(nsClass.gml, 'id'):'someExampleID'})
+    building_E = ET.SubElement(cityObjectMember_E, ET.QName(nsClass.bldg, 'Building'), attrib={ET.QName(nsClass.gml, 'id'): gmlID})
+    
     ET.SubElement(building_E, ET.QName(nsClass.gml, 'description')).text = 'approximation created using the e3D CityBIT - ' + interpol_method
-    ET.SubElement(building_E, ET.QName(nsClass.gml, 'name')).text = 'some example text'
+
+    # building attributes
+    ET.SubElement(building_E, ET.QName(nsClass.gml, 'name')).text = gmlID
+    
     ET.SubElement(building_E, ET.QName(nsClass.core, 'creationDate')).text = str(date.today())
-    # checking for terrain intersection
+    
     if terrainIntersection == {}:
         ET.SubElement(building_E, ET.QName(nsClass.core, 'relativeToTerrain')).text = 'entirelyAboveTerrain'
-    # GrossPlannedArea
+    
     measureAttribute_E = ET.SubElement(building_E, ET.QName(nsClass.gen, 'measureAttribute'), attrib={'name': 'GrossPlannedArea'})
     ET.SubElement(measureAttribute_E, ET.QName(nsClass.gen, 'value'), attrib={'uom': "m2"}).text = str(TWOd.AREA(gS_list))
-    # ConstructionMethod
-    # IsLandmarked
-    # bldg:class
+    
     if buildingFunction != '':
         ET.SubElement(building_E, ET.QName(nsClass.bldg, 'buildingFunction')).text = str(buildingFunction)
-        # bldg:function
-    # bldg:usage
+        
     # bldg:yearOfConstruction
-    ET.SubElement(building_E, ET.QName(nsClass.bldg, 'roofType'), attrib={'codeSpace':'http://www.sig3d.org/codelists/citygml/2.0/building/2.0/_AbstractBuilding_roofType.xml'}).text = str(va.roofTypes[roofType])
+    
+    ET.SubElement(building_E, ET.QName(nsClass.bldg, 'roofType'), attrib={'codeSpace':'http://www.sig3d.org/codelists/citygml/2.0/building/2.0/_AbstractBuilding_roofType.xml'}).text = str(roofType)
+    
     ET.SubElement(building_E, ET.QName(nsClass.bldg, 'measuredHeight'), attrib={'uom': "m"}).text = str(buildingHeight)
+    
     if storeysAboveGround != '' and storeysAboveGround != False:
         ET.SubElement(building_E, ET.QName(nsClass.bldg, 'storeysAboveGround')).text = str(storeysAboveGround)
-        # bldg:storeysAboveGround
+        
     if storeysBelowGround != '' and storeysBelowGround != False:
         ET.SubElement(building_E, ET.QName(nsClass.bldg, 'storeysBelowGround')).text = str(storeysBelowGround)
-        # bldg:storeysBelowGround
-    """here something about the lod needs to be done"""
+
+
+    # declaring surfaces
     lodnSolid_E = ET.SubElement(building_E, ET.QName(nsClass.bldg, 'lod2Solid'))
     solid_E = ET.SubElement(lodnSolid_E, ET.QName(nsClass.gml, 'Solid'))
     exterior_E = ET.SubElement(solid_E, ET.QName(nsClass.gml, 'exterior'))
     compositeSurface_E = ET.SubElement(exterior_E, ET.QName(nsClass.gml, 'CompositeSurface'))
-
-    ### here something to loop through the surfaceMembers    in order: wall, roof, base
-    ### somthing in the naming of the surface hrefs
+    
     exteriorSurfaces = [wall_dict, roof_dict, gS_dict]
+    polyIDs = []
+    n = 0
+    UUID = uuid.uuid1()
     for dictionary in exteriorSurfaces:
         for key in dictionary:
-            ET.SubElement(compositeSurface_E, ET.QName(nsClass.gml, 'surfaceMember'), attrib={ET.QName(nsClass.xlink, 'href'): key.replace(' ', '_')})
+            ID = "PolyID" + str(UUID) + '_' + str(n)
+            polyIDs.append(ID)
+            hashtagedID = '#' + ID
+            ET.SubElement(compositeSurface_E, ET.QName(nsClass.gml, 'surfaceMember'), attrib={ET.QName(nsClass.xlink, 'href'): hashtagedID})
+            n -=- 1
+
 
     # terrainIntersection
     if terrainIntersection != []:
@@ -898,7 +918,8 @@ def building_writer(self, envelope_dict, gS_dict, gS_list, terrainIntersection, 
                 ET.SubElement(lineString_E, ET.QName(nsClass.gml, 'pos')).text = ' '.join(stringed)#, attrib={"srsDimension": '"3"'})
 
 
-    # for walls
+    # for keeping track of used IDs
+    m = 0
     for i in range(len(exteriorSurfaces)):
         if i == 0:
             surfaceType = 'WallSurface'
@@ -908,20 +929,19 @@ def building_writer(self, envelope_dict, gS_dict, gS_list, terrainIntersection, 
             surfaceType = 'GroundSurface'
 
         for key in exteriorSurfaces[i]:
+            # creating elements for surfaces
             boundedBy_E = ET.SubElement(building_E, ET.QName(nsClass.bldg, 'boundedBy'))
-            ### somthing in the naming of the surface id
-            wrgID = 'GML_' + key.replace(' ', '_')
-            wallRoofGround_E = ET.SubElement(boundedBy_E, ET.QName(nsClass.bldg, surfaceType), attrib={ET.QName(nsClass.gml, 'id'): wrgID})
+            wallSurfaceID = "GML_" + str(uuid.uuid1())
+            wallRoofGround_E = ET.SubElement(boundedBy_E, ET.QName(nsClass.bldg, surfaceType), attrib={ET.QName(nsClass.gml, 'id'): wallSurfaceID})
             ET.SubElement(wallRoofGround_E, ET.QName(nsClass.gml, 'name')).text = key
-            """here something about the lod needs to be done"""
             lodnMultisurface_E = ET.SubElement(wallRoofGround_E, ET.QName(nsClass.bldg, 'lod2MultiSurface'))
             multiSurface_E = ET.SubElement(lodnMultisurface_E, ET.QName(nsClass.gml, 'MultiSurface'))
             surfaceMember_E = ET.SubElement(multiSurface_E, ET.QName(nsClass.gml, 'surfaceMember'))
-            """this needs to be identical to the surfaceMember id in the exteriorSurfaces"""
-            polygon_E = ET.SubElement(surfaceMember_E, ET.QName(nsClass.gml, 'Polygon'), attrib={ET.QName(nsClass.gml, 'id'): key.replace(' ', '_')})
-            # reusing variable, might cause some troubles
+            polyID = polyIDs[m]
+            m -=- 1
+            polygon_E = ET.SubElement(surfaceMember_E, ET.QName(nsClass.gml, 'Polygon'), attrib={ET.QName(nsClass.gml, 'id'): polyID})
             exterior_E = ET.SubElement(polygon_E, ET.QName(nsClass.gml, 'exterior'))
-            ring_id = key.replace(' ', '_') + '_0'
+            ring_id = polyID + '_0'
             linearRing_E = ET.SubElement(exterior_E, ET.QName(nsClass.gml, 'LinearRing'), attrib={ET.QName(nsClass.gml, 'id'): ring_id})
             for point in exteriorSurfaces[i][key]:
                 # converting floats to string to join
@@ -942,8 +962,13 @@ def building_writer(self, envelope_dict, gS_dict, gS_list, terrainIntersection, 
 
 
 def collision_check(coor, filenames):
-    """checks if coordinates collide with buildings in filenames"""
+    """checks if coor(dinates) collide with buildings in filenames"""
     border = mplP.Path(np.array(coor))
+    
+    collision = False
+    element_id = ''         # ID of overlapped building
+    element_file = ''       # filename of overlapped building
+    
     for filename in filenames:
         tree = ET.parse(filename)
         root = tree.getroot()
@@ -984,11 +1009,15 @@ def collision_check(coor, filenames):
                             pass
                         else:
                             # breaking from buildingPart loop
+                            element_id = BP_E.attrib['{http://www.opengis.net/gml}id']
+                            element_file = filename
                             print('building collides with another buildingPart')        
                             break
 
                 else:
                     # breaking from building loop
+                    element_id = building_E.attrib['{http://www.opengis.net/gml}id']
+                    element_file = filename
                     print('building collides with another building')
                     break
 
@@ -996,4 +1025,4 @@ def collision_check(coor, filenames):
                 # breaking from filename loop
                 break
     
-    return collision
+    return collision, element_file, element_id

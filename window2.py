@@ -165,6 +165,10 @@ def del_point(self):
 
 def gatherInfo2(self, value_dict):
     """gathering variable info from window 2"""
+    if self.txtB_u_GML_ID.text() != '':
+        value_dict["u_GML_ID"] = self.txtB_u_GML_ID.text()
+    else:
+        value_dict["u_GML_ID"] = None
     if self.txtB_dataFolder.text() != '':
         value_dict["dataPath"] = self.txtB_dataFolder.text()
     value_dict["interMethod"] = self.cB_interMethod.currentText()
@@ -200,6 +204,8 @@ def gatherInfo2(self, value_dict):
 
 def updateWindow2(self, value_dict):
     """updating window 2 based on previous inputs"""
+    if value_dict["u_GML_ID"] != None:
+        self.txtB_u_GML_ID.setText(value_dict["u_GML_ID"])
     if value_dict["dataPath"] != None:
         self.txtB_dataFolder.setText(value_dict["dataPath"])
     if value_dict["interMethod"] != None:

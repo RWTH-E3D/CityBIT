@@ -31,6 +31,7 @@ def gatherInfo1(self, value_dict, inter_dict):
         value_dict["bHeight"] = None
         inter_dict["bHeight"] = True
 
+
     if self.txtB_roofHeight.text() != '':
         try:
             roofHeight = float(self.txtB_roofHeight.text())
@@ -59,15 +60,16 @@ def gatherInfo1(self, value_dict, inter_dict):
             value_dict["rHeight"] = None
             inter_dict["rHeight"] = True
 
+
     if self.cB_roofType.currentIndex() > 0:
-        value_dict["rType"] = self.cB_roofType.currentText().split(' : ')[0]
+        value_dict["rType"] = self.cB_roofType.currentText().split(' ')[-1]
         inter_dict["rType"] = False
     else:
         value_dict["rType"] = None
         inter_dict["rType"] = True
 
 
-    if value_dict["rType"] != 'flat roof' and value_dict["rType"] != 'pavilion roof' and value_dict["rType"] != 'hipped roof' and self.cB_heading.count() > 0:
+    if value_dict["rType"] != '1000' and value_dict["rType"] != '1070' and value_dict["rType"] != '1040 ' and self.cB_heading.count() > 0:
         if self.cB_heading.currentIndex() > 0:
             value_dict["rHeading"] = self.cB_heading.currentIndex() - 1
             inter_dict["rHeading"] = False        
@@ -77,7 +79,6 @@ def gatherInfo1(self, value_dict, inter_dict):
     else:
         value_dict["rHeading"] = None
         inter_dict["rHeading"] = False
-
 
 
     if self.cB_buildingFunction.currentIndex() > 0:
@@ -143,7 +144,9 @@ def updateWindow1(self, value_dict):
         self.txtB_roofHeight.setText(str(value_dict["rHeight"]))
 
     if value_dict["rType"] != None:
-        index = self.cB_roofType.findText(value_dict["rType"] + ' : ' + ' ' * (14 - len(value_dict["rType"])) + str(va.roofTypes[value_dict["rType"]]))
+        rCode = value_dict["rType"]
+        rWord = list(va.roofTypes.keys())[list(va.roofTypes.values()).index(float(value_dict["rType"]))]
+        index = self.cB_roofType.findText(rWord + ' : ' + ' ' * (14 - len(rWord)) + str(rCode))
         self.cB_roofType.setCurrentIndex(index)
 
     # setting buildingHeadings
@@ -212,6 +215,10 @@ def changeRoof(self, pypath):
     for i in self.banners:
         i.hide()
     self.banners[self.cB_roofType.currentIndex()].show()
+    if self.cB_roofType.currentIndex() == 1:
+        self.txtB_roofHeight.setEnabled(False)
+    else:
+        self.txtB_roofHeight.setEnabled(True)
 
 
 def addRoofPictures(self, pypath, sizefactor):

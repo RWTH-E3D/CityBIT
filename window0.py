@@ -12,8 +12,8 @@ import cbit_functions as cbit_f
 
 def gatherInfo0(self, value_dict, inter_dict):
     """gathering variable info from window 0"""
-    cbit_f.check_CRS(self)
     # getting CRS info
+    cbit_f.check_CRS(self)
     if self.crs_checked:
         value_dict["iCRS"] = self.txtB_iCRS.text()
         value_dict["oCRS"] = self.txtB_oCRS.text()
@@ -36,12 +36,12 @@ def gatherInfo0(self, value_dict, inter_dict):
     elif self.txtB_xCenter.text() != '' and self.txtB_yCenter.text() != '':
         x_text = self.txtB_xCenter.text()
         y_text = self.txtB_yCenter.text()
-        check = cbit_f.x_y_check(self, x_text, y_text, to_center=True)
+        inCRS = cbit_f.x_y_check(self, x_text, y_text, to_center=True)
 
         value_dict["xCenOrig"] = x_text
         value_dict["yCenOrig"] = y_text
 
-        if check:
+        if inCRS:
             value_dict["cList"] = None
             value_dict["xCen"] = float(self.txtB_xCenter.text())
             value_dict["yCen"] = float(self.txtB_yCenter.text())
@@ -55,12 +55,12 @@ def gatherInfo0(self, value_dict, inter_dict):
             gf.messageBox(self, 'Error', 'The entered center coordinates are not valid')
             return False, value_dict, inter_dict
     
-    
     else:
         gf.messageBox(self, 'Error', 'Please enter either 3 or more coordiantes or a center point')
         return False, value_dict, inter_dict
 
 
+    # getting parameters for interpolated polygons
     if inter_dict["groundSurface"]:
         # getting area
         if self.txtB_area.text() != '':
@@ -191,30 +191,26 @@ def point_to_table(self, point):
 
 
 
-
 def two_p_to_square(gS_list):
     """calculates two coordinates to square, transforms coordinates and sorts list"""
-    X1, Y1 = gS_list[0]                 # getting coordinates of first point
+    X0, Y0 = gS_list[0]                 # getting coordinates of first point
     X2, Y2 = gS_list[1]                 # getting coordinates of second point
 
-    # calculating interim results
-    Xc = (X1 + X2)/2                    # xCenter
-    Yc = (Y1 + Y2)/2                    # yCenter
-    Xd = (X1 - X2)/2                    # xDistance
-    Yd = (Y1 - Y2)/2                    # yDistance
+    # calculating intermediate results
+    Xc = (X0 + X2)/2                    # xCenter
+    Yc = (Y0 + Y2)/2                    # yCenter
+    Xd = (X0 - X2)/2                    # xDistance
+    Yd = (Y0 - Y2)/2                    # yDistance
 
     # calculating new points
-    X3 = round(Xc - Yd, 8)
-    Y3 = round(Yc + Xd, 8)
-    X4 = round(Xc + Yd, 8)
-    Y4 = round(Yc - Xd, 8)
+    X1 = round(Xc - Yd, 8)
+    Y1 = round(Yc + Xd, 8)
+    X3 = round(Xc + Yd, 8)
+    Y3 = round(Yc - Xd, 8)
 
-    # appending new coordinates
-    gS_list = gS_list + [[X3, Y3], [X4, Y4]]
+    # appending new coordinates in a sorted order
+    gS_list = [[X0, Y0], [X1, Y1], [X2, Y2], [X3, Y3]]
 
-    # # sorting coordinates
-    # gS_list = sorter(gS_list, self, False)
-    
     return gS_list
 
 

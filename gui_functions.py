@@ -4,6 +4,7 @@ from PySide2 import QtWidgets, QtGui, QtCore
 
 
 
+
 def screenSizer(self, posx, posy, width, height, app):
     """func to get size of screen and scale window accordingly"""
     sizefactor = round(app.primaryScreen().size().height()*0.001)   # factor for scaling window, depending on height
@@ -42,9 +43,10 @@ def questionBox(self, header, question):
         return False
 
 
+
 def select_folder(self, textbox, msg):
     """func to select directory"""
-    path = QtWidgets.QFileDialog.getExistingDirectory(self, msg)                                      # starts directory selection dialog
+    path = QtWidgets.QFileDialog.getExistingDirectory(self, msg)                                        # starts directory selection dialog
     if path:                                                                                            # checks if valid directory has been selected
         textbox.setText(path)                                                                           # displaying path
         return path
@@ -52,6 +54,7 @@ def select_folder(self, textbox, msg):
         textbox.setText('')                                                                             # resetting textbox for path
         messageBox(self, 'Important', 'Valid Folder not selected')                                      # message-box informing about unsuccessful selection
     return ''
+
 
 
 def next_window(self, window, close=True):
@@ -86,12 +89,13 @@ def load_banner(self, path, sizefactor, banner_size=150):
 
 
 def reset_dicts(values, inters, value_dict, inter_dict):
-    """reseting values to None in dict"""
+    """reseting values (of keys ('values' in 'value_dict' and 'inters' in 'inter_dict')) to None in dict"""
     for value in values:
         value_dict[value] = None
     for inter in inters:
         inter_dict[inter] = True
     return value_dict, inter_dict
+
 
 
 def windowTitle(self, title):

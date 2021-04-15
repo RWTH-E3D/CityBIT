@@ -26,8 +26,9 @@ def calc_center(points):
     return [sum([p[0] for p in points])/len(points), sum([p[1] for p in points])/len(points)] 
 
 
+
 def sorting(points):
-    """sorting list by first two dimensions starting in the 3rd quadrtant (relative to center) going CW"""
+    """sorting list by first two dimensions starting in the 3rd quadrtant (relative to center) going CCW"""
     # calculate center
     cent = calc_center(points)
     # sort by polar angle
@@ -37,7 +38,7 @@ def sorting(points):
 
 
 def angle(p1, p2):
-    """calculating angle of a vector consisting of two points"""
+    """calculating bearing of a vector consisting of two points"""
     dx = p2[0] - p1[0]
     dy = p2[1] - p1[1]
     if dy == 0 and dx > 0:

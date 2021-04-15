@@ -6,24 +6,19 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.path as mplP
+from scipy.interpolate import griddata
 
-
+# import of functions
 import vari as va
 import TWOd_operations as TWOd
 import coordiante_check as CC
 import string_manipulation as sm
 
-# possible selection methods
-# all
-# by coordinate
-# by number of buildings
-# by radius
-
 
 
 
 def check_building(building_E, namespace, selCor_path, selCor_list):
-    """func checking if building needs to be considered for interpolation"""
+    """checks if building needs to be considered for interpolation"""
     if CC.check_element(building_E, namespace, selCor_path, selCor_list):
         # groundSurface of builiding is within the selected coordinates
         return True
@@ -43,7 +38,8 @@ def check_building(building_E, namespace, selCor_path, selCor_list):
 
 
 def roof_min_max(building_E, namespace):
-    """function returning the highest and lowest point of a roof"""
+    """function returning the highest and lowest point of a roof and a list of all roof polygons"""
+    # setting default values
     maximum_R = 0
     minimum_R = math.inf
     all_polygons = []
@@ -76,9 +72,8 @@ def roof_min_max(building_E, namespace):
 
 
 
-
 def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict, terrainRadius, parent= None, ALKIS= False):
-    """function collecting needed interpolation data from building_E or bp_E"""
+    """collects needed interpolation data from building_E or bp_E"""
     # getting coordinates of groundSurface of the building
     groundSurface_coor = get_groundSurface_coor(building_E, namespace)
     if groundSurface_coor == '':
@@ -88,10 +83,14 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
         pass
     data = [groundSurface_coor]
 
+
     # calculate center
     center = TWOd.calc_center(groundSurface_coor)
+    data.append(center[0])
+    data.append(center[1])
 
-    # checking if selection radius is present
+
+    # checking if selection radius is set and if building is within the radius
     if radius != None:
         if TWOd.distance(center, center_oI) <= radius:
             # building center is within radius
@@ -100,57 +99,49 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
             # building radius is outside of radius
             return []
 
-    data.append(center[0])
-    data.append(center[1])
+
     # calculate area
     area = TWOd.AREA(groundSurface_coor)
     data.append(area)
+
+
     # getting minimum elevation of building
     minimum_B = min([i[2] for i in data[0]])
     data.append(minimum_B)
 
 
-
-
-    # creating an surrounding rectangle from which we take the side to side ratio to
-
+    # getting minimal bounding rectangle to approximate the side ratio
     coor_2d = [[i[0], i[1]] for i in groundSurface_coor]
     mbr_info = minBoundingRect(coor_2d)
     long_side = max(mbr_info[2], mbr_info[3])
     short_side = min(mbr_info[2], mbr_info[3])
     data.append(long_side / short_side)
 
-    pp = mbr_info[5]
 
-    # calculate center
-    cent = mbr_info[4]
-    # sort by polar angle
-    pp.sort(key=lambda p: math.atan2(p[1]-cent[1], p[0]-cent[0]))
-
-    maximum_d = 0
-
+    # getting heading of longest side of minimal bounding rectangle
+    pp = mbr_info[5]                                                        # coordinates of minimal bounding rectangle
+    cent = mbr_info[4]                                                      # getting center of minimal bounding rectangle
+    pp.sort(key=lambda p: math.atan2(p[1]-cent[1], p[0]-cent[0]))           # sort by polar angle
+    maximum_d = 0                                                           # starting value
     for i in range(2):
         distance = TWOd.distance(pp[i], pp[i+1])
         if distance > maximum_d:
             dx = (pp[i+1][0] - pp[i][0]) / distance
             dy = (pp[i+1][1] - pp[i][1]) / distance
-
-
-    # heading of longest side
     data.append(dx)
     data.append(dy)
 
 
-    # getting bldg:lod2TerrainIntersection here
+    # getting bldg:lod2TerrainIntersection
     if inter_dict["terrainIntersection"]:
-        # calculating distance between centers of buildings to check if terrain intersection of this building is to be considered
+        # checking if terrain intersection of this building is going to be considered
         if TWOd.distance(center, center_oI) < terrainRadius:
             data.append(get_terrain_intersection(building_E, namespace))
         else:
             # building is to far away, not considering it's terrainIntersection
             data.append([])
     else:
-        # building intersection not needed
+        # building intersection not selected
         pass
 
 
@@ -158,39 +149,33 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
     maximum_R = None
     minimum_R = None
     roof_surfaces = []
+    if inter_dict["rHeight"] or inter_dict["bHeight"]:
+        maximum_R, minimum_R, roof_surfaces = roof_min_max(building_E, namespace)
+    else:
+        # values not needed
+        pass
 
-
-
-    # getting buildingHeight
+# getting buildingHeight
     if inter_dict["bHeight"]:
         measuredHeight_E = building_E.find('bldg:measuredHeight', namespace)
         if measuredHeight_E != None:
             data.append(float(measuredHeight_E.text))
         else:
-            # need to get measuredHeight from coordinates
-            maximum_R, minimum_R, roof_surfaces = roof_min_max(building_E, namespace)
             if maximum_R != None and minimum_B != None:
                 data.append(float(maximum_R - minimum_B))
             else:
-                data.append('buildingH_ND')
-
+                data.append('N/D')
     else:
         # buildingHeight not needed
         pass
 
-    
+
     # getting roofHeight
     if inter_dict["rHeight"]:
-        # getting minimum and maximum height of building
-        if maximum_R == None or minimum_R == None:
-            maximum_R, minimum_R, roof_surfaces = roof_min_max(building_E, namespace)
-        else:
-            # minimum and maximum height are already present
-            pass
         if maximum_R != None and minimum_R != None:
             data.append(round(maximum_R - minimum_R, 3))
         else:
-            data.append('roofH_N/D')
+            data.append('N/D')
     else:
         # roofHeight not needed
         pass
@@ -219,36 +204,30 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
         if roofType_value:
             data.append(roofType_value)
         else:
-            data.append('errorWithRoofType')
+            data.append('N/D')
 
 
     # getting roof Heading
     if inter_dict["rHeading"]:
         if roofType_value:
-            if roofType_value == '1000':
-                # data.append('fR')
-                # data.append('fR')
-                data.append('rH_N/D')
-                data.append('rH_N/D')
-            elif roofType_value == '1040':
-                # data.append('hR')
-                # data.append('hR')
-                data.append('rH_N/D')
-                data.append('rH_N/D')
-            elif roofType_value == '1070':
-                # data.append('pR')
-                # data.append('pR')
-                data.append('rH_N/D')
-                data.append('rH_N/D')
+            if roofType_value == '1000':            # roof heading not needed
+                data.append('N/D')
+                data.append('N/D')
+            elif roofType_value == '1040':          # roof heading not needed
+                data.append('N/D')
+                data.append('N/D')
+            elif roofType_value == '1070':          # roof heading not needed
+                data.append('N/D')
+                data.append('N/D')
             elif roofType_value == '1010' or roofType_value == '1020' or roofType_value == '1030':
+                # roof heading can be collected
                 if roof_surfaces == []:
                     maximum_R, minimum_R, roof_surfaces = roof_min_max(building_E, namespace)
                 else:
                     # already got coordinates of roof surface
                     pass
                 
-                # heading is roofline from highest point to lowest point (steepest angle)
-
+                # heading is equivalent to the roofline with the steepest angle
                 for roof_surface in roof_surfaces:
                     string = ' '.join(roof_surface)
                     points = sm.get_3dPosList_from_str(string)
@@ -258,89 +237,32 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
                     for i in range(len(points) - 1):
                         # getting the length of line
                         length = TWOd.distance(points[i][0:2], points[i+1][0:2])
-                        slope = abs((points[i][2] - points[i+1][2]) / length)
+                        if length > 0:
+                            slope = abs((points[i][2] - points[i+1][2]) / length)
 
-                        if slope > max_slope:
-                            max_slope = slope
+                            if slope > max_slope:
+                                max_slope = slope
 
-                            if points[i][2] > points[i+1][2]:
-                                # slope goes from first point to second one
-                                rx = (points[i+1][0] - points[i][0]) / length
-                                ry = (points[i+1][1] - points[i][1]) / length
-                            else:
-                                # slope goes from second point to first (or heights are equal)
-                                rx = (points[i][0] - points[i+1][0]) / length
-                                ry = (points[i][1] - points[i+1][1]) / length
+                                if points[i][2] > points[i+1][2]:
+                                    # slope goes from first point to second one
+                                    rx = (points[i+1][0] - points[i][0]) / length
+                                    ry = (points[i+1][1] - points[i][1]) / length
+                                else:
+                                    # slope goes from second point to first (or heights are equal)
+                                    rx = (points[i][0] - points[i+1][0]) / length
+                                    ry = (points[i][1] - points[i+1][1]) / length
 
                 data.append(rx)
                 data.append(ry)
 
-
-
-                # old idea
-                # # for the first choice
-                # max_length = 0
-                # heading = 'head_N/D'
-                # direction = 'N/D'
-                # # for the second choice
-                # max_length2 = 0
-                # heading2 = 'head_N/D'
-                # direction_2 = 'N/D'
-                # max_avg_height = 0
-                # for roof_surface in roof_surfaces:
-                #     string = ' '.join(roof_surface)
-                #     points = sm.get_3dPosList_from_str(string)
-                #     # getting roation direction
-                #     center = TWOd.calc_center(points)
-                #     new_direction = TWOd.rotationDirection(center, points[0], points[1])
-                #     for i in range(len(points) - 1):
-                #         # taking heading from longest roof line
-                #         length = TWOd.distance(points[i][0:2], points[i+1][0:2])
-                #         if points[i][2] == maximum_R and points[i+1][2] == maximum_R:
-                #             # roof line with max height
-                #             if length > max_length:
-                #                 max_length = length
-                #                 heading = TWOd.angle(points[i], points[i+1])
-                #                 direction = new_direction
-                #         else:
-                #             # is not the highest roof line, so only for second choice
-                #             avg_height = (points[i][2] + points[i+1][2]) / 2
-                #             if avg_height > max_avg_height:
-                #                 max_avg_height = avg_height
-                #                 max_length2 = length
-                #                 heading2 = TWOd.angle(points[i], points[i+1])
-                #                 direction_2 = new_direction
-                #             elif avg_height == max_avg_height:
-                #                 if length > max_length2:
-                #                     max_length2 = length
-                #                     heading2 = TWOd.angle(points[i], points[i+1])
-                #                     direction_2 = new_direction
-                #             else:
-                #                 # below previous avg roof line -> not considered
-                #                 pass
-
-                # if heading == 'head_N/D' and heading2 != 'head_N/D':
-                #     heading = heading2
-                #     direction = direction_2
-                # if heading != 'head_N/D':
-                #     if roofType_value == '1010' or roofType_value == '1020':
-                #         # need to correct angle
-                #         heading = TWOd.correct_angle(heading, direction)
-                #     else:
-                #         # no need to correct angle
-                #         pass
-                # data.append(heading)
-
-
             else:
-                # unsupported roofTypes for heading
-                # data.append('uR')
-                # data.append('uR')
-                data.append('rH_N/D')
-                data.append('rH_N/D')
+                # unsupported roof type
+                data.append('N/D')
+                data.append('N/D')
         else:
-            data.append('rH_N/D')
-            data.append('rH_N/D')
+            # roof type not specified
+            data.append('N/D')
+            data.append('N/D')
     else:
         # roofHeading is not needed
         pass
@@ -372,9 +294,9 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
                         pass
                     data.append(buildingFunction_value)
                 else:
-                    data.append('bF_N/D')    
+                    data.append('N/D')    
             else:
-                data.append('bF_N/D')
+                data.append('N/D')
     else:
         # buildingFunction not needed
         pass
@@ -386,7 +308,7 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
         if SAG_E != None:
             data.append(SAG_E.text)
         else:
-            data.append('SAG_N/D')
+            data.append('N/D')
     else:
         # storeysAboveGround not needed
         pass
@@ -398,11 +320,11 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
         if SBG_E != None:
             data.append(SBG_E.text)
         else:
-            data.append('SBG_N/D')
+            data.append('N/D')
     else:
         # storeysBelowGround not needed
         pass
-    
+
 
     # returning collected data
     return data
@@ -417,8 +339,7 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
         selCor_path = mplP.Path(np.array(selCor_list))
 
 
-
-    # creating header for the collected data
+    # creating header for the collected data (depending on user selection)
     header = ['filename', 'building_id', 'buildingPart_id', 'groundSurface_coordinates', 'X_center', 'Y_center', 'area', 'min_elevation', 'side_ratio', 'long_dxN', 'long_dyN']
     if inter_dict["terrainIntersection"]:
         header.append('intersectionCoor')
@@ -438,11 +359,10 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
         header.append('storeysBelowGround')
 
     big_data = []       # holding all information
-    small_data = []     # holding weighted area info
+    small_data = []     # holding info for area interpolation
 
 
     # collecting data from buildings
-
     for filename in filenames:
         tree = ET.parse(filename)
         root = tree.getroot()
@@ -472,7 +392,6 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
             if x1 and x2 and y1 and y2:                                         # checking if all coordinates are present
                 fcoor = [(x1, y1), (x2, y1), (x2, y2), (x1, y2)]
                 fcheck = CC.border_check(selCor_path, selCor_list, fcoor)
-        
         else:
             # all files need to be checkded if selection is all
             pass
@@ -545,7 +464,7 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
                     else:
                         for roofType_E in roofType_Es:
                             if ALKIS:
-                                if str(va.roofTypes[attribValue]) == str(va.roofType_ALKIS_to_CityGML[roofType_E.text]):
+                                if str(attribValue) == str(va.roofType_ALKIS_to_CityGML[roofType_E.text]):
                                     # is the same -> consider building
                                     consider = True
                                     break
@@ -553,7 +472,7 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
                                     # is different value -> check other values
                                     continue
                             else:
-                                if str(va.roofTypes[attribValue]) == roofType_E.text:
+                                if str(attribValue) == roofType_E.text:
                                     # is the same -> consider building
                                     consider = True
                                     break
@@ -565,6 +484,7 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
                     # no attribute given -> consider
                     consider = True
                 
+
                 # checking if building needs to be consideres
                 if consider == True:
                     # checking building
@@ -574,9 +494,8 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
                     continue
 
 
-                # list to collect data
+                # list to collect data with default parameters
                 data = [os.path.basename(filename)]
-
                 building_id = building_E.attrib['{http://www.opengis.net/gml}id']
                 data.append(building_id)
                 data.append('mainBuilding')
@@ -600,7 +519,7 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
                 # getting groundSurface coordiantes of buildingParts
                 bps_in_bldg = building_E.findall('./bldg:consistsOfBuildingPart', namespace)
                 for co_bp_E in bps_in_bldg:
-                    bp_E = co_bp_E.find('bldg:BuildingPart', namespace)
+                    bp_E = co_bp_E.find('bldg:BuildingPart', namespace)     
                     # samestuff what has been for building now for buildingPart
                     data = [os.path.basename(filename)]
                     data.append(building_id)
@@ -621,6 +540,7 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
                         # skipping buildingPart because of missing geometry
                         pass
 
+
                 # calculate cumulated area here and new x and y center
                 if area_info != []:
                     area_sum = 0
@@ -636,8 +556,8 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
             # file doesnot need to be checked because of selection criteria (envelope)
             pass
 
-    # interpolating info
 
+    # creating pandas DataFrame(s)
     df = pd.DataFrame(big_data, columns= header)
 
     if inter_dict["area"]:
@@ -645,22 +565,23 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
     else:
         df_area = None
 
-    exp_name = r'dataframe.csv'
-    df.to_csv(exp_name, sep='\t', encoding='utf-8', index=False)
+    if False:
+        df.to_csv(r'dataframe.csv', sep='\t', encoding='utf-8', index=False)
+
     return df, df_area
 
 
 
 def get_groundSurface_coor(element, namespace):
-    """function for getting coordinates from groundsurface; positions and height"""
+    """returning list of groundSurface coordinates of an element (building or buildingPart)"""
     groundSurface_E = element.find('bldg:boundedBy/bldg:GroundSurface', namespace)
     if groundSurface_E != None:
         posList_E = groundSurface_E.find('.//gml:posList', namespace)       # searching for list of coordinates
 
-        if posList_E != None:           # case aachen lod2
+        if posList_E != None:                                               # case aachen lod2
             return sm.get_3dPosList_from_str(posList_E.text)
             
-        else:                           # case hamburg lod2 2020
+        else:                                                               # case hamburg lod2 2020
             pos_Es = groundSurface_E.findall('.//gml:pos', namespace)
             polygon = []
             for pos_E in pos_Es:
@@ -668,9 +589,8 @@ def get_groundSurface_coor(element, namespace):
             polyStr = ' '.join(polygon)
             return sm.get_3dPosList_from_str(polyStr)
 
-    
     #  checking if no groundSurface element has been found
-    else:               # case for lod1 files
+    else:                                                                   # case for lod1 files
         geometry = element.find('bldg:lod1Solid', namespace)
         if geometry != None:
             poly_Es = geometry.findall('.//gml:Polygon', namespace)
@@ -704,27 +624,27 @@ def get_groundSurface_coor(element, namespace):
 
 
 def get_terrain_intersection(element, namespace):
-    """function for getting bldg:lod2TerrainIntersection points"""
+    """returning list of terrain intersection coordinates of element (building or buildingPart)"""
     coordinates = []
 
     relativeToTerrain_E = element.find('core:relativeToTerrain', namespace)
     if relativeToTerrain_E != None:
         if relativeToTerrain_E.text == 'entirelyAboveTerrain':
-            return 'entirelyAboveTerrain'
+            return 'N/D'                                            #'entirelyAboveTerrain'
 
         elif relativeToTerrain_E.text == 'entirelyBelowTerrain':
-            return 'entirelyBelowTerrain'
+            return 'N/D'                                            #'entirelyBelowTerrain'
 
         else:
-            # still need to check for intersection data
+            # unknown relative relation -> still need to check for intersection data
             pass
     else:
-        # still need to check for intersection data
+        # relative relation not definded
         pass
 
     intersection_E = element.find('bldg:lod2TerrainIntersection', namespace)
     if intersection_E != None:
-        # case of gml:posList (e.g. Aachen)
+        # case of gml:posList
         posList_Es = intersection_E.findall('.//gml:posList', namespace)
         for posList_E in posList_Es:
             # getting the string of coordinates and appending individual points to list of all coordinates
@@ -741,17 +661,19 @@ def get_terrain_intersection(element, namespace):
         coordinates = [list(t) for t in set(tuple(element) for element in coordinates)]
         return coordinates
 
-
     else:
         # could not find TerrainIntersection
-        return 'noIntersection'
+        return 'N/D'                                                #'noIntersection'
 
 
 
 def interpolate_value(dataframe, X_coor, Y_coor, wanted_value, interpolation_method, cout=True):
     """function to call griddata interpolation and return wanted value for given X_coor and Y_coor"""
-    from scipy.interpolate import griddata
-    value = float(griddata((dataframe["X_center"], dataframe["Y_center"]), dataframe[wanted_value], (X_coor, Y_coor), method=interpolation_method))
+    # clearing not defined values from dataframe
+    df = dataframe.query('`' + str(wanted_value) + '`' + ' != "N/D"')  #[dataframe[wanted_value] != 'N/D']
+
+    # interpolating value
+    value = float(griddata((df["X_center"], df["Y_center"]), df[wanted_value], (X_coor, Y_coor), method=interpolation_method))
     if cout:
         print(wanted_value)
         print(value)
@@ -760,8 +682,7 @@ def interpolate_value(dataframe, X_coor, Y_coor, wanted_value, interpolation_met
 
 
 def minBoundingRect(hull_points_2d):
-    """calculates a minimum surrounding rectangle of a 2d shape"""
-
+    """calculates a minimum surrounding rectangle of a 2D shape"""
     # calculating vectors of each side
     edges = []
     for i in range(len(hull_points_2d) - 1):
@@ -769,38 +690,26 @@ def minBoundingRect(hull_points_2d):
         edge_y = hull_points_2d[i+1][1] - hull_points_2d[i][1]
         edges.append([edge_x,edge_y])
 
-
     # calculating angles of each side unsing arctan in radian
     edge_angles = []
     for i in range( len(edges) ):
         edge_angles.append(math.atan2( edges[i][1], edges[i][0] ))
 
-
     # getting angles in to the 1st quadrant (0 to 90 deg or 0 to pi/2)
     for i in range( len(edge_angles) ):
         edge_angles[i] = abs( edge_angles[i] % (math.pi/2) )
 
-
     # removing duplicates of angles
     edge_angles = np.unique(edge_angles)
-
 
     # setting default values
     min_bbox = (0, float("inf"), 0, 0, 0, 0, 0, 0) # rot_angle, area, width, height, min_x, max_x, min_y, max_y
 
-
     for i in range( len(edge_angles) ):
-
-        # Create rotation matrix to shift points to baseline
-        # theta = edge_angles[i]
-        # R = [ cos(theta)      , cos(theta-PI/2)
-        #       cos(theta+PI/2) , cos(theta)     ]
         R = np.array([ [ math.cos(edge_angles[i]), math.cos(edge_angles[i]-(math.pi/2)) ], [ math.cos(edge_angles[i]+(math.pi/2)), math.cos(edge_angles[i]) ] ])
-
 
         # Apply this rotation to convex hull points
         rot_points = np.dot(R, np.transpose(hull_points_2d) ) # 2x2 * 2xn
-
 
         # Find min/max x,y points
         x_min = np.nanmin(rot_points[0], axis=0)
@@ -808,18 +717,15 @@ def minBoundingRect(hull_points_2d):
         y_min = np.nanmin(rot_points[1], axis=0)
         y_max = np.nanmax(rot_points[1], axis=0)
 
-
         # calculating min
         width = x_max - x_min
         height = y_max - y_min
         area = width * height
 
-
         # Store the smallest rect found first (a simple convex hull might have 2 answers with same area)
         if (area < min_bbox[1]):
             min_bbox = ( edge_angles[i], area, width, height, x_min, x_max, y_min, y_max )
             R_small = R
-
 
     # min/max x,y points are against baseline
     x_min = min_bbox[4]
@@ -827,12 +733,10 @@ def minBoundingRect(hull_points_2d):
     y_min = min_bbox[6]
     y_max = min_bbox[7]
 
-
     # Calculate center point and project onto rotated frame
     center_x = (x_min + x_max)/2
     center_y = (y_min + y_max)/2
     center_point = np.dot( [ center_x, center_y ], R_small ).tolist()
-
 
     # Calculate corner points and project onto rotated frame
     corner_points = [] 
@@ -841,18 +745,18 @@ def minBoundingRect(hull_points_2d):
     corner_points.append(np.dot( [ x_min, y_max ], R_small ).tolist())
     corner_points.append(np.dot( [ x_max, y_max ], R_small ).tolist())
 
-
     return (min_bbox[0], min_bbox[1], min_bbox[2], min_bbox[3], center_point, corner_points) # rot_angle, area, width, height, center_point, corner_points
 
 
 
-def interpolate_categroy(df, category, x_center, y_center, interpol_method, posRes=[]):
-    """used for interpolating categories like roofType or building function"""
+def interpolate_categroy(df, x_center, y_center, category, interpol_method, posRes=[]):
+    """used for interpolating categories like roofType or building function - posRes is a list of possbile results as not all roof types are available"""
+    # getting all possible results for interpolation, removing duplicates and sorting
     unsorted = df[category].tolist()
     sorted_list = list(set(unsorted))
-    sorted_list.sort()  # list of additional categories
+    sorted_list.sort()
 
-    # creating truthmatrix for present values of categories
+    # creating truthmatrix for possible values of categories
     new_header = ['filename', 'building_id', 'buildingPart_id', 'X_center', 'Y_center'] + sorted_list
     new_list = []
     for index, row in df.iterrows():
@@ -863,9 +767,11 @@ def interpolate_categroy(df, category, x_center, y_center, interpol_method, posR
 
     # creating new dataframe
     df_cate = pd.DataFrame(new_list, columns= new_header)
-    df_cate.to_csv('category.csv', sep='\t', encoding='utf-8', index=False)
-
     
+    if False:
+        df_cate.to_csv('category.csv', sep='\t', encoding='utf-8', index=False)
+    
+    # interpolating for every possible category
     highest = 0 
     index = -1
     for i, value in enumerate(sorted_list):
@@ -877,12 +783,13 @@ def interpolate_categroy(df, category, x_center, y_center, interpol_method, posR
             else:
                 # skipping value because it is not in the possible results
                 continue
-        prob = interpolate_value(df_cate, x_center, y_center, value, interpol_method)
+        prob = interpolate_value(df_cate, x_center, y_center, value, interpol_method, False)
         if prob > highest:
             highest = prob
             index = i
+
     if index != -1:
-        print('interpolated:\t', sorted_list[index])
+        print(category + '\n' + sorted_list[index])
         return sorted_list[index]
     else:
         print('ERROR interpolating', category,'\nreturning 1000')
