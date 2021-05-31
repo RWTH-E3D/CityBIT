@@ -1,6 +1,7 @@
 # import of libraries
 from PySide2 import QtWidgets
 import csv
+import math
 
 # import of functions
 import gui_functions as gf
@@ -123,6 +124,22 @@ def gatherInfo0(self, value_dict, inter_dict):
             value_dict["bHeading"] = None
             inter_dict["bHeading"] = True
 
+
+        if value_dict["area"] != None and value_dict["sideRatio"] != None and value_dict["bHeading"] != None:
+            area = value_dict["area"]
+            ratio = value_dict["sideRatio"]
+            long_side = math.sqrt(area * ratio)
+            short_side = math.sqrt(area / ratio)
+            long_side_h = long_side * 0.5
+            short_side_h = short_side * 0.5
+            x_center = value_dict["xCen"]
+            y_center = value_dict["yCen"]
+            p0 = [x_center - math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, y_center - math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h]
+            p1 = [x_center - math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, y_center - math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h]
+            p2 = [x_center + math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, y_center + math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h]
+            p3 = [x_center + math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, y_center + math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h]
+            value_dict["cList"] = [p0, p1, p2, p3]
+            inter_dict["groundSurface"] = False
     else:
         value_dict["area"] = None
         inter_dict["area"] = False
