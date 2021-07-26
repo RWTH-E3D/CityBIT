@@ -23,7 +23,7 @@ The availability of 3D building models has been increasing in the last few years
 
 ## Version
 
-The CityBIT is currently being developed. Currently the CityBIT is available in the version 0.1.
+The CityBIT is currently being developed. Currently the CityBIT is available in the version 0.6.
 
 
 ## How to use CityBIT
