@@ -51,7 +51,7 @@ You are invited to contribute to the development of CityBIT. You may report any 
 
 ## How to cite CityBIT
 
-To be made available soon.
+CityBIT: CityGML Building Interpolation Tool for Energy Performance Simulations. Avichal Malhotra, Simon Raming, Jérôme Frisch, Christoph van Treeck. European Conference on Computing in Construction, July 2021, Greece.
 
 ## License
 
