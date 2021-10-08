@@ -622,7 +622,7 @@ def get_groundSurface_coor(element, namespace):
                 average = 0
                 for i in range(len(polygon)-1):
                     average -=- polygon[i][2]
-                averages.append(average/len(polygon)-1)
+                averages.append(average/(len(polygon)-1))
 
             return all_poylgons[averages.index(min(averages))]
         else:
