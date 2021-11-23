@@ -455,6 +455,7 @@ def compute(self, value_dict, inter_dict):
                     gf.windowTitle(self, 'interpolating storeys above ground')
                     print('cant interpolate SAG yet')
                     # either get averade storage height and depending on that or just depending on the surrounding buildings
+                    storeysAboveGround = False
                 else:
                     # SAG not needed or given
                     storeysAboveGround = value_dict["SAG"]
@@ -464,6 +465,7 @@ def compute(self, value_dict, inter_dict):
                     gf.windowTitle(self, 'interpolating storeys below ground')
                     print('cant interpolate SBG yet')
                     # either get averade storage height and depending on that or just depending on the surrounding buildings
+                    storeysBelowGround = False
                 else:
                     # SBG not needed or given
                     storeysBelowGround = value_dict["SBG"]
@@ -790,14 +792,17 @@ def compute(self, value_dict, inter_dict):
         print('got unexpected roofType code "' + roofType + '" for roof calculation.\nABORTING!')
         return
 
-
-    # still need to be set
-    storeysAboveGround = False
-    storeysBelowGround = False
     
     gf.windowTitle(self, 'writing building file')
-    building_writer(self, value_dict["u_GML_ID"], envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, value_dict["expoPath"], interpol_name)
+    newFile, newNSmap = building_writer(self, value_dict["u_GML_ID"], envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, value_dict["expoPath"], interpol_name)
     gf.messageBox(self, 'Succes', 'New file was created')
+
+    # check if new file should be combined with existing dataset
+    if filenames != None and self.checkB_combine.isChecked():
+        combine_withDataset(self, filenames, newFile, [x_center, y_center], newNSmap)
+
+
+
 
 
 
@@ -957,6 +962,7 @@ def building_writer(self, u_GML_id, envelope_dict, gS_dict, gS_list, terrainInte
                 encoding='utf-8', standalone='yes', method="xml")
     
     print('created new CityGML file')
+    return os.path.join(exppath, name + ".gml"), newNSmap
 
 
 
@@ -1026,3 +1032,129 @@ def collision_check(coor, filenames):
                 break
     
     return collision, element_file, element_id
+
+
+
+
+def combine_withDataset(self, filenames, newfile, center, newNSmap):
+    """func for writing new CityGML file from list of buildings and files"""
+    print("trying to merge new building with existing file")
+
+    if len(filenames) > 0:
+
+        # suffix of new file
+        suffix = '_e3D_CityBIT_combined'
+
+        # buildings for new file
+        listOfBuildings = []
+        # crs and minimum and maximum coordinates of created file
+        crs = ''
+        minimum = [math.inf, math.inf, math.inf]
+        maximum = [-math.inf, -math.inf, -math.inf]
+        nsClass = cl.CGML2
+
+        for i, filename in enumerate(filenames):
+            # parsing file, getting root and namespace map
+            tree = ET.parse(filename)
+            root = tree.getroot()
+            nss = root.nsmap
+
+            # search CityGML envelope
+            # check if envelope contains the center of the new building
+            envelope_E = root.find('.//gml:Envelope', namespaces= nss)
+            if envelope_E != None:
+
+                # getting bounding coordinates
+                minimum = [math.inf, math.inf, math.inf]
+                maximum = [-math.inf, -math.inf, -math.inf]
+                try:
+                    lowerCorner = envelope_E.find('./gml:lowerCorner', nss).text.split(' ')
+                    for i, coor in enumerate(lowerCorner):
+                        if float(coor) < minimum[i]:
+                            minimum[i] = float(coor)
+                    upperCorner = envelope_E.find('./gml:upperCorner', nss).text.split(' ')
+                    for i, coor in enumerate(upperCorner):
+                        if float(coor) > maximum[i]:
+                            maximum[i] = float(coor)
+                except:
+                    print('error within gml:envelope in file: ', filename, " can't get values of envelope")
+                    continue
+
+                if minimum[0] <= center[0] and center[0] <= maximum[0] and minimum[1] <= center[1] and center[1] <= maximum[1]:
+                    print(filename, ' is suitable for merging files')
+                    crs = envelope_E.attrib['srsName']
+                    cityObjectMembers = root.findall('core:cityObjectMember', namespaces=nss)
+                    for cityObjectMember_E in cityObjectMembers:
+                        listOfBuildings.append(cityObjectMember_E)
+                    newName = os.path.splitext(os.path.basename(filename))[0] + suffix
+                    break
+                else:
+                    continue
+
+                
+            else:
+                print('error finding envelope in file ', filename)
+
+        # checking if suitable file has been found
+        try:
+            newName
+        except:
+            gf.messageBox(self, 'Error', 'No matching file found to insert new building')
+            return
+
+        # getting building from new file
+        tree = ET.parse(newfile)
+        root = tree.getroot()
+        nss = root.nsmap
+        cityObjectMembers = root.findall('core:cityObjectMember', namespaces=nss)
+        for cityObjectMember_E in cityObjectMembers:
+            listOfBuildings.append(cityObjectMember_E)
+
+
+        # creating new root element
+        nroot = ET.Element(ET.QName(nsClass.core, 'CityModel'), nsmap= newNSmap)
+        
+        # creating name element
+        name_E = ET.SubElement(nroot, ET.QName(nsClass.gml, 'name'), nsmap={'gml': nsClass.gml})
+        name_E.text = 'created by the CGML-ATB of the e3D'
+
+        # creating gml enevelope
+        if crs != '':
+            bound = ET.SubElement(nroot, ET.QName(nsClass.gml, 'boundedBy'))
+            envelope = ET.SubElement(bound, ET.QName(nsClass.gml, 'Envelope'), srsName= crs)
+            if all([x != math.inf for x in minimum]) and all([x != -math.inf for x in maximum]):
+                lcorner = ET.SubElement(envelope, ET.QName(nsClass.gml, 'lowerCorner'), srsDimension= str(len(minimum)))
+                lcorner.text = ' '.join(map(str, minimum))
+                ucorner = ET.SubElement(envelope, ET.QName(nsClass.gml, 'upperCorner'), srsDimension= str(len(maximum)))
+                ucorner.text = ' '.join(map(str, maximum))
+            else:
+                print('error finding necessary coordinates for bounding box')
+        else:
+            print('error no SRS found for new file')
+            return
+
+        # appending buildings to new root
+        for building in listOfBuildings:
+            string = ET.tostring(building)
+            elemento = ET.fromstring(string)
+            nroot.insert(nroot.index(name_E)+2, elemento)
+            building.tail = None
+
+        # creating tree from elements
+        tree = ET.ElementTree(nroot)
+        
+        # setting export path
+        exp_path = os.path.dirname(newfile)
+
+        # writing file
+        print('writing combined file')
+        tree.write(os.path.join(exp_path, newName + ".gml"), pretty_print = True, xml_declaration=True, 
+                    encoding='utf-8', standalone='yes', method="xml")
+
+        print('combining complete! combined file is: ', os.path.join(exp_path, newName + ".gml"))
+        msg = 'Successfully merged ' + os.path.basename(filename) + ' with new building!'
+        gf.messageBox(self, 'Success', msg)
+        return
+    else:
+        print('Error! The dataset folder is empty')
+        return 
