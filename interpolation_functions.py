@@ -115,7 +115,11 @@ def get_info_from_building(building_E, namespace, center_oI, radius, inter_dict,
     mbr_info = minBoundingRect(coor_2d)
     long_side = max(mbr_info[2], mbr_info[3])
     short_side = min(mbr_info[2], mbr_info[3])
-    data.append(long_side / short_side)
+    if short_side == 0:
+        print("warning in building " + building_E.attrib['{http://www.opengis.net/gml}id'] + "short side is equal to zero\n\tappending value '1'")
+        data.append(1)
+    else:
+        data.append(long_side / short_side)
 
 
     # getting heading of longest side of minimal bounding rectangle
@@ -567,6 +571,9 @@ def interpolation_start(filenames, selection, sameAttrib, attribValue, center_oI
 
     if False:
         df.to_csv(r'dataframe.csv', sep='\t', encoding='utf-8', index=False)
+        print("wrote new file dataframe.csv")
+        df_area.to_csv(r'dataframeAREA.csv', sep='\t', encoding='utf-8', index=False)
+        print("wrote new file dataframeAREA.csv")
 
     return df, df_area
 
@@ -615,7 +622,7 @@ def get_groundSurface_coor(element, namespace):
                 average = 0
                 for i in range(len(polygon)-1):
                     average -=- polygon[i][2]
-                averages.append(average/len(polygon)-1)
+                averages.append(average/(len(polygon)-1))
 
             return all_poylgons[averages.index(min(averages))]
         else:

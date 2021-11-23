@@ -482,7 +482,10 @@ class datasetInfo(QtWidgets.QWidget):
         self.txtB_u_GML_ID = QtWidgets.QLineEdit()
         self.txtB_u_GML_ID.setPlaceholderText('gml:id of created building')
         self.txtB_u_GML_ID.setToolTip('uuid is used if left empty')
-        self.uGrid.addWidget(self.txtB_u_GML_ID, 0, 1, 1, 5)
+        self.uGrid.addWidget(self.txtB_u_GML_ID, 0, 1, 1, 3)
+
+        self.checkB_combine = QtWidgets.QCheckBox('Combine with existing dataset')
+        self.uGrid.addWidget(self.checkB_combine, 0, 4, 1, 1)
 
         self.vbox.addLayout(self.uGrid)
 
