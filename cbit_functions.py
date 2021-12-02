@@ -877,7 +877,7 @@ def building_writer(self, u_GML_id, envelope_dict, gS_dict, gS_list, terrainInte
     ET.SubElement(measureAttribute_E, ET.QName(nsClass.gen, 'value'), attrib={'uom': "m2"}).text = str(TWOd.AREA(gS_list))
     
     if buildingFunction != '':
-        ET.SubElement(building_E, ET.QName(nsClass.bldg, 'buildingFunction')).text = str(buildingFunction)
+        ET.SubElement(building_E, ET.QName(nsClass.bldg, 'function')).text = str(buildingFunction)
         
     # bldg:yearOfConstruction
     
