@@ -134,10 +134,10 @@ def gatherInfo0(self, value_dict, inter_dict):
             short_side_h = short_side * 0.5
             x_center = value_dict["xCen"]
             y_center = value_dict["yCen"]
-            p0 = [x_center - math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, y_center - math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h]
-            p1 = [x_center - math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, y_center - math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h]
-            p2 = [x_center + math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, y_center + math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h]
-            p3 = [x_center + math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, y_center + math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h]
+            p0 = [round(x_center - math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, 2), round(y_center - math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h, 2)]
+            p1 = [round(x_center - math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, 2), round(y_center - math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h, 2)]
+            p2 = [round(x_center + math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, 2), round(y_center + math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h, 2)]
+            p3 = [round(x_center + math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, 2), round(y_center + math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h, 2)]
             value_dict["cList"] = [p0, p1, p2, p3]
             inter_dict["groundSurface"] = False
     else:

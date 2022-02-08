@@ -307,10 +307,10 @@ def compute(self, value_dict, inter_dict):
                         angle = value_dict["bHeading"]
 
                     # calculating corner points for new rectangle and creating array of them
-                    p0 = [x_center - math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, y_center - math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h]
-                    p1 = [x_center - math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, y_center - math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h]
-                    p2 = [x_center + math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, y_center + math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h]
-                    p3 = [x_center + math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, y_center + math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h]
+                    p0 = [round(x_center - math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, 2), round(y_center - math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h, 2)]
+                    p1 = [round(x_center - math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, 2), round(y_center - math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h, 2)]
+                    p2 = [round(x_center + math.sin(math.radians(angle)) * long_side_h + math.sin(math.radians(angle + 90)) * short_side_h, 2), round(y_center + math.cos(math.radians(angle)) * long_side_h + math.cos(math.radians(angle + 90)) * short_side_h, 2)]
+                    p3 = [round(x_center + math.sin(math.radians(angle)) * long_side_h - math.sin(math.radians(angle + 90)) * short_side_h, 2), round(y_center + math.cos(math.radians(angle)) * long_side_h - math.cos(math.radians(angle + 90)) * short_side_h, 2)]
                     gS_list = [p0, p1, p2, p3]
 
                 else:
@@ -586,6 +586,7 @@ def compute(self, value_dict, inter_dict):
         y = i.copy()
         y.append(surfaceHeight)
         gS_3d.append(y)
+    gS_3d.reverse()
     gS_dict = {'Base Surface': gS_3d}
 
     wall_dict = {}
