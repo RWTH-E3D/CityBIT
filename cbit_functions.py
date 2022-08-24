@@ -1,5 +1,5 @@
 # import of libraries
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtCore
 import os
 import pyproj
 import math
@@ -541,7 +541,7 @@ def compute(self, value_dict, inter_dict):
     # checking if new coordinates collide with existing buildings within dataset
     if filenames != None and len(filenames) > 0:
         gf.windowTitle(self, 'testing for collison with existing buildings')
-        collision_result, file_overlap, element_id = collision_check(gS_list, filenames)
+        collision_result, file_overlap, element_id, csrs = collision_check(gS_list, filenames)
         if collision_result:
             print('collision check failed')
             msg = 'New groundSurface collided with existing building ' + element_id + ' in file ' + file_overlap +'.'
@@ -550,6 +550,8 @@ def compute(self, value_dict, inter_dict):
             # return
         else:
             print('groundSurface of new building does not interfere with dataset')
+    else:
+        csrs = ""
 
     gf.windowTitle(self, 'creating building volume')
 
@@ -794,7 +796,7 @@ def compute(self, value_dict, inter_dict):
 
     
     gf.windowTitle(self, 'writing building file')
-    newFile, newNSmap = building_writer(self, value_dict["u_GML_ID"], envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, value_dict["expoPath"], interpol_name)
+    newFile, newNSmap = building_writer(self, value_dict["u_GML_ID"], envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, value_dict["expoPath"], interpol_name, csrs)
     gf.messageBox(self, 'Succes', 'New file was created')
 
     # check if new file should be combined with existing dataset
@@ -807,10 +809,17 @@ def compute(self, value_dict, inter_dict):
 
 
 
-def building_writer(self, u_GML_id, envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, exppath, interpol_method):
+
+def building_writer(self, u_GML_id, envelope_dict, gS_dict, gS_list, terrainIntersection, wall_dict, roof_dict, roofType, buildingHeight, buildingFunction, storeysAboveGround, storeysBelowGround, exppath, interpol_method, collissionCRS):
     """function to write new file containing building"""
     # getting info from search_info
-    crs = "urn:adv:crs:ETRS89_UTM32*DE_DHHN2016_NH*GCG2016"
+    if collissionCRS != "":
+        crs = collissionCRS
+    else:
+        print("in else")
+        from main import CustomDialog
+        x = CustomDialog()
+        crs = x.getResults()
     print('crs:', crs)
 
     name = 'CityBIT_' + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -974,6 +983,7 @@ def collision_check(coor, filenames):
     collision = False
     element_id = ''         # ID of overlapped building
     element_file = ''       # filename of overlapped building
+    srs = ""
     
     for filename in filenames:
         tree = ET.parse(filename)
@@ -989,7 +999,8 @@ def collision_check(coor, filenames):
         envelope_E = root.find('./gml:boundedBy/gml:Envelope', namespace)
         if envelope_E != None:
             try:
-                # srs = envelope.attrib['srsName'] currently not needed
+                if srs == "":
+                    srs = envelope_E.attrib['srsName']
                 lowerCorner = envelope_E.find('./gml:lowerCorner', namespace).text.split(' ')
                 x1 = float(lowerCorner[0])
                 y1 = float(lowerCorner[1])
@@ -1003,6 +1014,7 @@ def collision_check(coor, filenames):
             fcheck = CC.border_check(border, coor, fcoor)
 
         if fcheck == True:
+            srs = envelope_E.attrib['srsName']  # getting srs here to get one that is actually in the same region as the other buildings
             buildings_in_file = root.findall('core:cityObjectMember/bldg:Building', namespace)      # gets buildings within file
             for building_E in buildings_in_file:
                 collision = CC.check_element(building_E, namespace, border, coor)
@@ -1031,7 +1043,7 @@ def collision_check(coor, filenames):
                 # breaking from filename loop
                 break
     
-    return collision, element_file, element_id
+    return collision, element_file, element_id, srs
 
 
 

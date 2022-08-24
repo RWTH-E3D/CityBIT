@@ -836,6 +836,51 @@ class summary(QtWidgets.QWidget):
         self.hide()
 
 
+class CustomDialog(QtWidgets.QDialog):
+    def __init__(self):
+        super(CustomDialog, self).__init__()
+        
+        global posx, posy, width, height, sizefactor, pypath
+
+        gf.windowSetup(self, posx + 20, posy + 20, width, height / 5, pypath, 'CityBIT - Reference Coordinate System')
+
+        # creating main layout
+        self.vbox = QtWidgets.QVBoxLayout(self)
+        self.setLayout(self.vbox)
+
+        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
+        self.lbl_list = QtWidgets.QLabel('Please enter a coordinate reference system:')
+        self.vbox.addWidget(self.lbl_list)
+
+        self.btn_openReference = QtWidgets.QPushButton("Open modeling guide")
+        self.vbox.addWidget(self.btn_openReference)
+        self.btn_openReference.clicked.connect(self.openGuide)
+
+        self.txtB_crs = QtWidgets.QLineEdit("")
+        self.txtB_crs.setPlaceholderText("recommendation for germany: 'urn:adv:crs:ETRS89_UTM32*DE_DHHN92_NH'")
+        self.vbox.addWidget(self.txtB_crs)
+
+        buttonBox = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel, self)
+        self.vbox.addWidget(buttonBox)
+
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.xyz)
+
+    def openGuide(self):
+        os.startfile(r"https://en.wiki.quality.sig3d.org/index.php/Modeling_Guide_for_3D_Objects_-_Part_2:_Modeling_of_Buildings_(LoD1,_LoD2,_LoD3)#Reference_Coordinate_System:~:text=as%20semantic%20objects.-,Reference%20Coordinate%20System,-CityGML%202.0%20strongly")
+
+    def xyz(self):
+        gf.messageBox(self, "Error", "The CRS is required!")
+
+    def getResults(self):
+        if self.exec_() == QtWidgets.QDialog.Accepted:
+            return self.txtB_crs.text()
+        else:
+            print("error")
+            return None
+
+
+
 
 
 
